@@ -1,0 +1,13 @@
+  .login-box {
+    border: 3px solid #ccc;
+    padding: 20px;
+    padding-top: 30px;
+    padding-bottom: 60px;
+    border-radius: 10px;
+    margin-top: 20px;
+  }
+
+  .login-box input::placeholder {
+    color: #999; 
+    opacity: 0.8; 
+  }
