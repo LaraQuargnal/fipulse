@@ -1,8 +1,9 @@
 <template>
   <div class="about">
-    <h1>Login to Your Account</h1>
+    <h1>{{ $t("loginTitle") }}</h1>
     <p style="font-size: 14px">
-      Don't have an account yet? <router-link to="/signup">Sign up</router-link>
+      {{ $t("loginNoAccountYet") }}
+      <router-link to="/signup">{{ $t("signUp") }}</router-link>
     </p>
     <div class="container">
       <div class="row">
@@ -11,27 +12,27 @@
           <div class="login-box">
             <form>
               <div class="form-group">
-                <label for="exampleInputEmail1" style="margin-top: 10px"
-                  >Email address</label
-                >
+                <label for="exampleInputEmail1" style="margin-top: 10px">{{
+                  $t("loginEmailAddress")
+                }}</label>
                 <input
                   type="email"
                   class="form-control"
                   id="exampleInputEmail1"
                   aria-describedby="emailHelp"
-                  placeholder="Enter email"
+                  :placeholder="$t('enterEmail')"
                 />
-                <small id="emailHelp" class="form-text text-muted"
-                  >We'll never share your email with anyone else.</small
-                >
+                <small id="emailHelp" class="form-text text-muted">{{
+                  $t("loginEmailNote")
+                }}</small>
               </div>
               <div class="form-group">
-                <label for="exampleInputPassword1" style="margin-top: 10px"
-                  >Password</label
-                >
+                <label for="exampleInputPassword1" style="margin-top: 10px">{{
+                  $t("passwordLabel")
+                }}</label>
                 <password-input
                   inputId="exampleInputPassword1"
-                  placeholder="Password"
+                  :placeholder="$t('passwordLabel')"
                 ></password-input>
               </div>
               <button
@@ -39,7 +40,7 @@
                 class="btn btn-primary"
                 style="margin-top: 30px"
               >
-                Submit
+                {{ $t("submit") }}
               </button>
             </form>
           </div>

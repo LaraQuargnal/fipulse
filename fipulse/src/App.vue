@@ -10,9 +10,9 @@
             class="d-inline-block align-text-top"
           />
         </a>
-        <router-link to="/">Home</router-link> |
-        <router-link to="/login">Login</router-link> |
-        <router-link to="/signup">Signup</router-link> |
+        <router-link to="/">{{ $t("navBarHome") }}</router-link> |
+        <router-link to="/login">{{ $t("navBarLogin") }}</router-link> |
+        <router-link to="/signup">{{ $t("navBarSignup") }}</router-link> |
         <div class="dropdown">
           <button
             class="btn btn-link dropdown-toggle custom-dropdown-toggle"
@@ -22,28 +22,55 @@
             aria-haspopup="true"
             aria-expanded="false"
           >
-            Language
+            {{ $t("navBarLanguage") }}
           </button>
           <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            <router-link class="dropdown-item" to="">EN</router-link>
-            <router-link class="dropdown-item" to="">HR</router-link>
+            <button
+              v-for="entry in languages"
+              :key="entry.title"
+              @click="changeLocale(entry.language)"
+              class="dropdown-item"
+            >
+              {{ entry.title }}
+            </button>
           </div>
         </div>
         <form class="d-flex" role="search">
           <input
             class="form-control me-2"
             type="search"
-            placeholder="Search"
+            :placeholder="$t('navBarSearch')"
             aria-label="Search"
           />
-          <button class="btn btn-outline-success" type="submit">Search</button>
+          <button class="btn btn-outline-success" type="submit">
+            {{ $t("navBarSearch") }}
+          </button>
         </form>
       </div>
     </nav>
-
     <router-view />
   </nav>
 </template>
+
+<script>
+import i18n from "@/plugins/i18n";
+
+export default {
+  data() {
+    return {
+      languages: [
+        { language: "en", title: "English" },
+        { language: "hr", title: "Hrvatski" },
+      ],
+    };
+  },
+  methods: {
+    changeLocale(locale) {
+      i18n.global.locale = locale;
+    },
+  },
+};
+</script>
 
 <style lang="scss">
 #app {
@@ -64,6 +91,11 @@ nav {
     &.router-link-exact-active {
       color: #42b983;
     }
+  }
+
+  .flag-icon {
+    width: 20px;
+    margin-right: 5px;
   }
 }
 
