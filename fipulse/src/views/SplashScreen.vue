@@ -1,10 +1,10 @@
 <template>
   <div>
     <div class="splash-screen" :class="{ 'show': showSplash }">
-      <img alt="Vue logo" src="@/assets/logoPrivremeni.png" />
-      <h1>Welcome to Your Vue.js App</h1>
+      <img alt="FIPULSE logo" src="@/assets/logo.png" class="logo" />
+      <h1>Welcome to FIPULSE page.</h1>
     </div>
-    <router-view v-if="!showSplash" /> <!-- Render router-view when splash screen is hidden -->
+    <router-view v-if="showSplash" /> <!-- Render router-view when splash screen is hidden -->
   </div>
 </template>
 
@@ -25,7 +25,7 @@ export default {
         this.showSplash = false;
         // Navigate to the home page after the splash screen fades out
         setTimeout(() => {
-          this.$router.push({ name: 'home' });
+          this.$router.push({ name: 'login' });
         }, 500); // Adjust the delay time as needed
       }, 4000); // Adjust the delay time as needed
     }, 500); // Adjust the delay time as needed to allow Vue to render
@@ -46,5 +46,11 @@ export default {
 
 .splash-screen.show {
   opacity: 1; /* Make the splash screen visible */
+}
+
+.logo {
+  width: 100%; /* Set the width of the logo to 20% of its container (the splash screen div) */
+  max-width: 500px; /* Set a maximum width for the logo */
+  height: auto; /* Maintain the aspect ratio of the logo */
 }
 </style>

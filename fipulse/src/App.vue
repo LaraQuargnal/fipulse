@@ -4,13 +4,13 @@
       <div class="container-fluid">
         <a class="navbar-brand" href="#">
           <img
-            src="@/assets/logoPrivremeni.png"
+            src="@/assets/logo.png"
             alt="Logo"
             height="35"
             class="d-inline-block align-text-top"
           />
         </a>
-        <router-link to="/">{{ $t("navBarHome") }}</router-link> |
+        <router-link to="/home">{{ $t("navBarHome") }}</router-link> |
         <router-link to="/login">{{ $t("navBarLogin") }}</router-link> |
         <router-link to="/signup">{{ $t("navBarSignup") }}</router-link> |
         <div class="dropdown">
