@@ -1,7 +1,7 @@
 import { createApp } from 'vue';
 import { createI18n } from 'vue-i18n';
 
-createApp().use(createI18n());
+//createApp().use(createI18n());
 
 const messages = {
     'en': {

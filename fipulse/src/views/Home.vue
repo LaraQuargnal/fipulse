@@ -1,7 +1,8 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logoPrivremeni.png" />
-    <HelloWorld msg="Welcome to Your Vue.js App" />
+  <div class="row">
+    <div class="col-3">...ovjde ide pretraživač</div>
+    <div class="col-7">...ovjde ide instagram story</div>
+    <div class="col-2">...ovdje ide nešto</div>
   </div>
 </template>
 
