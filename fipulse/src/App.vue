@@ -2,17 +2,6 @@
   <nav>
     <nav class="navbar bg-body-tertiary" style="margin-bottom: 20px">
       <div class="container-fluid">
-        <router-link to="/">
-          <a class="navbar-brand">
-            <img
-              src="@/assets/logoPrivremeni.png"
-              alt="Logo"
-              height="35"
-              class="d-inline-block align-text-top"
-            />
-          </a>
-        </router-link>
-        <router-link to="/">{{ $t("navBarHome") }}</router-link> |
         <a class="navbar-brand" href="#">
           <img
             src="@/assets/logo.png"
@@ -22,6 +11,7 @@
           />
         </a>
         <router-link to="/home">{{ $t("navBarHome") }}</router-link> |
+        <router-link to="/posts">{{ $t("navBarPosts") }}</router-link> |
         <router-link to="/login">{{ $t("navBarLogin") }}</router-link> |
         <router-link to="/signup">{{ $t("navBarSignup") }}</router-link> |
         <div class="dropdown">

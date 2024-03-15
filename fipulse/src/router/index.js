@@ -3,6 +3,7 @@ import HomeView from '../views/Home.vue'
 import SplashScreen from "../views/SplashScreen.vue"
 import Login from "../views/Login.vue"
 import SignUp from "../views/Signup.vue"
+import Posts from "../views/Posts.vue"
 
 const routes = [
   {
@@ -24,6 +25,11 @@ const routes = [
     path: '/signup',
     name: 'signup',
     component: SignUp
+  },
+  {
+    path: '/posts',
+    name: 'posts',
+    component: Posts
   }
 ]
 

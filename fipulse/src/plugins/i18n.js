@@ -22,7 +22,14 @@ const messages = {
         signupName: 'Name',
         chooseName: 'Choose nick name',
         confirmPassword: 'Confirm Password',
-        alreadyhaveAccount: 'Already have an account?'
+        alreadyhaveAccount: 'Already have an account?',
+        navBarPosts: 'Posts',
+        firstUndergraduate: '1. undergraduate',
+        secondUndergraduate: '2. undergraduate',
+        thirdUndergraduate: '3. undergraduate',
+        firstGraduate: '1. graduate',
+        secondGraduate: '2. graduate',
+        browseCategories: 'BROWSE CATEGORIES',
 
 
 
@@ -45,7 +52,16 @@ const messages = {
         signupName: 'Ime',
         chooseName: 'Izaberite nadimak',
         confirmPassword: 'Potvrdi lozinku',
-        alreadyhaveAccount: 'Već imate račun?'
+        alreadyhaveAccount: 'Već imate račun?',
+        navBarPosts: 'Objave',
+        firstUndergraduate: '1. preddiplomski',
+        secondUndergraduate: '2. preddiplomski',
+        thirdUndergraduate: '3. preddiplomski',
+        firstGraduate: '1. diplomski',
+        secondGraduate: '2. diplomski',
+        browseCategories: 'PREGLED KATEGORIJA',
+    
+
 
     }
 };
