@@ -2,18 +2,18 @@
   <nav>
     <nav class="navbar bg-body-tertiary" style="margin-bottom: 20px">
       <div class="container-fluid">
-        <a class="navbar-brand" href="#">
+        
           <img
             src="@/assets/logo.png"
             alt="Logo"
-            height="35"
+            height="45"
             class="d-inline-block align-text-top"
           />
-        </a>
         <router-link to="/home">{{ $t("navBarHome") }}</router-link> |
         <router-link to="/posts">{{ $t("navBarPosts") }}</router-link> |
         <router-link to="/login">{{ $t("navBarLogin") }}</router-link> |
         <router-link to="/signup">{{ $t("navBarSignup") }}</router-link> |
+        <router-link to="/usercard">{{ $t("navBarUserCard") }}</router-link> |
         <div class="dropdown">
           <button
             class="btn btn-link dropdown-toggle custom-dropdown-toggle"
@@ -36,6 +36,7 @@
             </button>
           </div>
         </div>
+        <!--
         <form class="d-flex" role="search">
           <input
             class="form-control me-2"
@@ -47,6 +48,7 @@
             {{ $t("navBarSearch") }}
           </button>
         </form>
+        -->
       </div>
     </nav>
     <router-view />
