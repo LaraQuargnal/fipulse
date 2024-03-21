@@ -18,7 +18,7 @@
   - specijalna sekcija za izražavanje studentskih frustracija
   - opće informacije i geografske lokacije referade, menza i kafića prilagođenih učenju ili zabavi
 
-**Link na prototip:** 
+**Link na prototip:** https://www.figma.com/proto/IbuvETA6xNGXkn1bxI56IK/FIPULSE?page-id=0%3A1&type=design&node-id=19-210&viewport=267%2C-82%2C0.06&t=cTcbvAofG7g7YQuB-1&scaling=contain&mode=design
 
 **Zaduženja (planirana) po članu tima:**
   - Lara:
