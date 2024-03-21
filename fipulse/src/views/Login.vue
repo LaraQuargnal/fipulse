@@ -1,7 +1,7 @@
 <template>
-  <div class="about">
+  <div class="login">
     <h1>{{ $t("loginTitle") }}</h1>
-    <p style="font-size: 14px">
+    <p class="subtitle">
       {{ $t("loginNoAccountYet") }}
       <router-link to="/signup">{{ $t("signUp") }}</router-link>
     </p>
@@ -10,38 +10,22 @@
         <div class="col-sm"></div>
         <div class="col-sm">
           <div class="login-box">
-            <form>
+            <form @submit.prevent="login">
               <div class="form-group">
                 <label for="exampleInputEmail1" style="margin-top: 10px">{{
-                  $t("loginEmailAddress")
-                }}</label>
-                <input
-                  type="email"
-                  class="form-control"
-                  id="exampleInputEmail1"
-                  aria-describedby="emailHelp"
-                  :placeholder="$t('enterEmail')"
-                />
+      $t("loginEmailAddress") }}</label>
+                <input type="email" v-model="username" class="form-control" id="exampleInputEmail1"
+                  aria-describedby="emailHelp" :placeholder="$t('enterEmail')" />
                 <small id="emailHelp" class="form-text text-muted">{{
-                  $t("loginEmailNote")
-                }}</small>
+      $t("loginEmailNote") }}</small>
               </div>
               <div class="form-group">
                 <label for="exampleInputPassword1" style="margin-top: 10px">{{
-                  $t("passwordLabel")
-                }}</label>
-                <password-input
-                  inputId="exampleInputPassword1"
-                  :placeholder="$t('passwordLabel')"
-                ></password-input>
+      $t("passwordLabel") }}</label>
+                <input v-model="password" inputId="exampleInputPassword1" :placeholder="$t('passwordLabel')" />
               </div>
-              <button
-                type="submit"
-                class="btn btn-primary"
-                style="margin-top: 30px"
-              >
-                {{ $t("submit") }}
-              </button>
+              <button type="button" @click="login()" class="btn btn-primary" style="margin-top: 30px">
+                {{ $t("submit") }}</button>
             </form>
           </div>
         </div>
@@ -51,16 +35,38 @@
   </div>
 </template>
 
-<style>
-@import "@/styles/styles.css";
-</style>
-
 <script>
 import PasswordInput from "@/components/PasswordInput.vue";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/firebase";
 
 export default {
+  name: "login",
+  data() {
+    return {
+      username: "",
+      password: ""
+    }
+  },
+  methods: {
+    login() {
+      signInWithEmailAndPassword(auth, this.username, this.password)
+        .then((userCredential) => {
+          // Uspješna registracija
+          console.log('Uspješna prijava.', userCredential.user);
+        })
+        .catch((error) => {
+          // Greška prilikom registracije
+          console.error('Došlo je do greške.', error);
+        });
+    }
+  },
   components: {
     "password-input": PasswordInput,
   },
 };
 </script>
+
+<style>
+@import "@/styles/styles.css";
+</style>

@@ -5,14 +5,11 @@
             <div class="col-4">
                 <div class="user-card">
                     <div class="user-card-image">
-                        <!-- Profile Image -->
                         <img :src="imageUrl || defaultImageUrl" alt="Profile Image" width="200" height="200" />
                     </div>
-                    <!-- File input -->
                     <div class="col-9 mx-auto">
                         <input type="file" class="form-control mt-3" @change="handleImageUpload" accept="image/*" />
                     </div>
-                    <!-- Submit button -->
                     <div class="text-center mt-3">
                         <button class="btn btn-primary">Izmijeni sliku korisnika</button>
                     </div>
@@ -37,7 +34,6 @@
                         <label>Grade:</label>
                         <span>{{ userData.grade }}</span>
                     </div>
-                    <!-- Buttons -->
                     <div class="text-left mt-4">
                         <button class="btn btn-primary">Izmijeni podatke</button>
                     </div>
@@ -51,9 +47,7 @@
         <div class="row justify-content-center mt-5">
             <div class="col-8">
                 <div class="border p-3">
-                    <!-- Naziv CHAT -->
                     <h3 class="text-center">CHAT</h3>
-                    <!-- Sadržaj chata -->
                     <div class="chat">
                         <div class="row">
                             <div class="col">Red 1</div>
@@ -77,13 +71,12 @@ export default {
         return {
             userData: {
                 nickname: 'JohnDoe',
-                email: 'asd.asd@unipu.hr', // Zadana vrijednost za e-mail adresu
+                email: 'asd.asd@unipu.hr',
                 password: '********',
                 grade: 'beginner',
-                // Add other user data as needed
             },
-            imageUrl: '', // Placeholder for uploaded image URL
-            defaultImageUrl: require('@/assets/userpicture.png') // Provide a default image URL
+            imageUrl: '',
+            defaultImageUrl: require('@/assets/userpicture.png')
         };
     },
     methods: {

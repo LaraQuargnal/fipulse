@@ -4,7 +4,7 @@
       <img alt="FIPULSE logo" src="@/assets/logo.png" class="logo" />
       <h1>Welcome to FIPULSE page.</h1>
     </div>
-    <router-view v-if="showSplash" /> <!-- Render router-view when splash screen is hidden -->
+    <router-view v-if="showSplash" />
   </div>
 </template>
 
@@ -13,22 +13,19 @@ export default {
   name: "SplashScreen",
   data() {
     return {
-      showSplash: false // Initially set to false to prevent immediate display
+      showSplash: false
     };
   },
   mounted() {
-    // Show splash screen with fade-in animation
     setTimeout(() => {
       this.showSplash = true;
-      // Hide splash screen with fade-out animation after a delay
       setTimeout(() => {
         this.showSplash = false;
-        // Navigate to the home page after the splash screen fades out
         setTimeout(() => {
           this.$router.push({ name: 'login' });
-        }, 500); // Adjust the delay time as needed
-      }, 4000); // Adjust the delay time as needed
-    }, 500); // Adjust the delay time as needed to allow Vue to render
+        }, 500);
+      }, 4000);
+    }, 500);
   },
 };
 </script>
@@ -40,17 +37,17 @@ export default {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  opacity: 0; /* Initial opacity set to 0 */
-  transition: opacity 0.5s ease-in-out; /* Define the transition */
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
 }
 
 .splash-screen.show {
-  opacity: 1; /* Make the splash screen visible */
+  opacity: 1;
 }
 
 .logo {
-  width: 100%; /* Set the width of the logo to 20% of its container (the splash screen div) */
-  max-width: 500px; /* Set a maximum width for the logo */
-  height: auto; /* Maintain the aspect ratio of the logo */
+  width: 100%;
+  max-width: 500px;
+  height: auto;
 }
 </style>
