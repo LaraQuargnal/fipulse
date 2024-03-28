@@ -29,6 +29,7 @@ const messages = {
     firstGraduate: "1. graduate",
     secondGraduate: "2. graduate",
     browseCategories: "BROWSE CATEGORIES",
+    users: "USERS"
   },
   hr: {
     navBarHome: "Početna",
@@ -58,6 +59,7 @@ const messages = {
     firstGraduate: "1. diplomski",
     secondGraduate: "2. diplomski",
     browseCategories: "PREGLED KATEGORIJA",
+    users: "KORISNICI"
   },
 };
 

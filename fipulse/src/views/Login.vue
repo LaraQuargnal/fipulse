@@ -13,19 +13,38 @@
             <form @submit.prevent="login">
               <div class="form-group">
                 <label for="exampleInputEmail1" style="margin-top: 10px">{{
-      $t("loginEmailAddress") }}</label>
-                <input type="email" v-model="username" class="form-control" id="exampleInputEmail1"
-                  aria-describedby="emailHelp" :placeholder="$t('enterEmail')" />
+                  $t("loginEmailAddress")
+                }}</label>
+                <input
+                  type="email"
+                  v-model="username"
+                  class="form-control"
+                  id="exampleInputEmail1"
+                  aria-describedby="emailHelp"
+                  :placeholder="$t('enterEmail')"
+                />
                 <small id="emailHelp" class="form-text text-muted">{{
-      $t("loginEmailNote") }}</small>
+                  $t("loginEmailNote")
+                }}</small>
               </div>
               <div class="form-group">
                 <label for="exampleInputPassword1" style="margin-top: 10px">{{
-      $t("passwordLabel") }}</label>
-                <input v-model="password" inputId="exampleInputPassword1" :placeholder="$t('passwordLabel')" />
+                  $t("passwordLabel")
+                }}</label>
+                <password-input
+                  v-model="password"
+                  inputId="exampleInputPassword1"
+                  :placeholder="$t('passwordLabel')"
+                ></password-input>
               </div>
-              <button type="button" @click="login()" class="btn btn-primary" style="margin-top: 30px">
-                {{ $t("submit") }}</button>
+              <button
+                type="button"
+                @click="login()"
+                class="btn btn-primary"
+                style="margin-top: 30px"
+              >
+                {{ $t("submit") }}
+              </button>
             </form>
           </div>
         </div>
@@ -45,21 +64,21 @@ export default {
   data() {
     return {
       username: "",
-      password: ""
-    }
+      password: "",
+    };
   },
   methods: {
     login() {
       signInWithEmailAndPassword(auth, this.username, this.password)
         .then((userCredential) => {
           // Uspješna registracija
-          console.log('Uspješna prijava.', userCredential.user);
+          console.log("Uspješna prijava.", userCredential.user);
         })
         .catch((error) => {
           // Greška prilikom registracije
-          console.error('Došlo je do greške.', error);
+          console.error("Došlo je do greške.", error);
         });
-    }
+    },
   },
   components: {
     "password-input": PasswordInput,

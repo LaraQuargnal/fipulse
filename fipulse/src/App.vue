@@ -2,22 +2,57 @@
   <nav>
     <nav class="navbar bg-body-tertiary" style="margin-bottom: 20px">
       <div class="container-fluid">
-
-        <img src="@/assets/logo.png" alt="Logo" height="45" class="d-inline-blockojk align-text-top" />
-        <router-link v-if="!currentUser" to="/home">{{ $t("navBarHome") }}</router-link> |
-        <router-link v-if="!currentUser" to="/posts">{{ $t("navBarPosts") }}</router-link> |
-        <router-link v-if="!currentUser" to="/login">{{ $t("navBarLogin") }}</router-link> |
-        <router-link v-if="!currentUser" to="/signup">{{ $t("navBarSignup") }}</router-link> |
-        <router-link v-if="!currentUser" to="/usercard">{{ $t("navBarUserCard") }}</router-link> |
-        <router-link v-if="!currentUser" to="/logout" @click.prevent="logout()">{{ $t("navBarLogOut") }}</router-link> |
+        <img
+          src="@/assets/logo.png"
+          alt="Logo"
+          height="45"
+          class="d-inline-blockojk align-text-top"
+        />
+        <router-link v-if="!currentUser" to="/home">{{
+          $t("navBarHome")
+        }}</router-link>
+        |
+        <router-link v-if="!currentUser" to="/posts">{{
+          $t("navBarPosts")
+        }}</router-link>
+        |
+        <router-link v-if="!currentUser" to="/login">{{
+          $t("navBarLogin")
+        }}</router-link>
+        |
+        <router-link v-if="!currentUser" to="/signup">{{
+          $t("navBarSignup")
+        }}</router-link>
+        |
+        <router-link v-if="!currentUser" to="/usercard">{{
+          $t("navBarUserCard")
+        }}</router-link>
+        |
+        <router-link
+          v-if="!currentUser"
+          to="/logout"
+          @click.prevent="logout()"
+          >{{ $t("navBarLogOut") }}</router-link
+        >
+        |
         <div class="dropdown" v-if="!currentUser">
-          <button class="btn btn-link dropdown-toggle custom-dropdown-toggle" type="button" id="dropdownMenuButton"
-            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <button
+            class="btn btn-link dropdown-toggle custom-dropdown-toggle"
+            type="button"
+            id="dropdownMenuButton"
+            data-bs-toggle="dropdown"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
             {{ $t("navBarLanguage") }}
           </button>
           <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            <button v-for="entry in languages" :key="entry.title" @click="changeLocale(entry.language)"
-              class="dropdown-item">
+            <button
+              v-for="entry in languages"
+              :key="entry.title"
+              @click="changeLocale(entry.language)"
+              class="dropdown-item"
+            >
               {{ entry.title }}
             </button>
           </div>
@@ -42,29 +77,28 @@
 </template>
 
 <script>
-import store from '@/store';
+import store from "@/store";
 import i18n from "@/plugins/i18n";
 import { auth } from "@/firebase";
 import router from "@/router";
 
-auth.onAuthStateChanged(user => {
+auth.onAuthStateChanged((user) => {
   const currentRoute = router.currentRoute;
 
   if (user) {
     console.log(user.email);
     store.currentUser = user.email;
 
-    if(!currentRoute?.meta?.requiresAuth) {
+    if (!currentRoute?.meta?.requiresAuth) {
     }
-  }
-  else {
+  } else {
     console.log("No user.");
     store.currentUser = null;
-    if(currentRoute?.meta?.requiresAuth) {
-        router.push({ name: "login"})
+    if (currentRoute?.meta?.requiresAuth) {
+      router.push({ name: "login" });
     }
   }
-})
+});
 
 export default {
   data() {
@@ -73,21 +107,21 @@ export default {
       languages: [
         { language: "en", title: "English" },
         { language: "hr", title: "Hrvatski" },
-      ]
+      ],
     };
   },
   watch: {
-    '$store.state.currentUser'(newVal, oldVal) {
+    "$store.state.currentUser"(newVal, oldVal) {
       // Handle changes to the currentUser state
       // For example, you can perform navigation logic here
       if (newVal !== null) {
         // User is logged in, navigate to the appropriate route
-        this.$router.push({ name: 'home' });
+        this.$router.push({ name: "home" });
       } else {
         // User is logged out, navigate to the login route
-        this.$router.push({ name: 'login' });
+        this.$router.push({ name: "login" });
       }
-    }
+    },
   },
   methods: {
     logout() {
@@ -102,8 +136,8 @@ export default {
   computed: {
     currentUser() {
       return store.currentUser !== null;
-    }
-  }
+    },
+  },
 };
 </script>
 
