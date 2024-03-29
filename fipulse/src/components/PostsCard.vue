@@ -1,21 +1,20 @@
 <template>
-  <div class="post">
-    <div class="post-header">
-      <div class="user-info">
-        <span class="user-name">Ana Aničić</span>
+  <div>
+    <div v-for="card in cards" :key="card" class="post">
+      <div class="post-header">
+        <div class="user-info">
+          <span class="user-name">{{ card.user }}</span>
+        </div>
+        <div class="post-date">
+          <span>{{ card.date }}</span>
+        </div>
       </div>
-      <div class="post-date">
-        <span>28.03.2024. 18:48</span>
+      <h3 class="post-title">{{ card.subject }}</h3>
+      <h5 class="post-comment">{{ card.title }}</h5>
+      <p class="post-comment">{{ card.comment }}</p>
+      <div class="attachment">
+        <a :href="card.attachment">{{ card.attachment }}</a>
       </div>
-    </div>
-    <h3 class="post-title">Subject 1</h3>
-    <h5 class="post-comment">Skripta za prvi kolokvij</h5>
-    <p class="post-comment">
-      Komentar: u privitku skripta za prvi kolokvij kojegija XY. Nisam dovršila
-      skriptu. Stala na nešto.
-    </p>
-    <div class="attachment">
-      <a href="#">PI_skripta.pdf</a>
     </div>
   </div>
 </template>
@@ -23,7 +22,12 @@
 <script>
 export default {
   name: "PostsCard",
-  props: {},
+  props: {
+    cards: {
+      type: Array,
+      required: true,
+    },
+  },
 };
 </script>
 

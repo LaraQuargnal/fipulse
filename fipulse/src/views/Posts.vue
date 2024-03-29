@@ -113,7 +113,7 @@
         <button class="btn btn-primary" style="margin-top: 20px; width: 150px">
           {{ $t("addPost") }}
         </button>
-        <PostsCard />
+        <PostsCard :cards="cards" />
         <PostsCard />
         <PostsCard />
       </div>
@@ -195,6 +195,42 @@
 <script>
 import PostsCard from "@/components/PostsCard.vue";
 
+let cards = [];
+cards = [
+  {
+    user: "Iva Ivičić",
+    date: "2021-06-01",
+    title: "Skripta programsko inženjerstvo",
+    subject: "PI",
+    comment: "Imate skriptu, ali nije još gotova jer blabblablablabla",
+    attachment: "PI_skripta.pdf",
+  },
+  {
+    user: "Marko Marković",
+    date: "2021-06-02",
+    title: "tutorial o programiranju",
+    subject: "OP",
+    comment: "sdf sdf sf re dfg dfg dfg dfg dfg dfg dfg dfg dfg dfg ",
+    attachment: "tutorial.pdf",
+  },
+  {
+    user: "Ana Aničić",
+    date: "2021-06-03",
+    title: "Vjezbe iz SPA",
+    subject: "SPA",
+    comment: "sdflsdfljsdflksdflksdfjklsdljkf",
+    attachment: "primjer vježbi.jpg",
+  },
+  {
+    user: "Blablablablabla Blablalbabičić",
+    date: "2021-06-04",
+    title: "Odgovori na pitanja za samoprocjenu",
+    subject: "IT Management",
+    comment: "dfg dfg dfg dfg dfg dfg dfg ",
+    attachment: "IT_odgovori.docx",
+  },
+];
+
 export default {
   name: "Posts",
   components: {
@@ -202,6 +238,7 @@ export default {
   },
   data() {
     return {
+      cards: cards,
       isOpen: false,
       activeDropdown: null,
       dropdownWidth: 0,
