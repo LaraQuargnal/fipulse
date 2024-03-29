@@ -1,7 +1,7 @@
 <template>
   <div class="posts">
     <div class="row">
-      <div class="col-3">
+      <div class="col-2">
         <div class="box-title">{{ $t("browseCategories") }}</div>
         <div class="dropdown" :class="{ open: isOpen && activeDropdown === 1 }">
           <button
@@ -109,82 +109,97 @@
           </div>
         </div>
       </div>
-      <div class="col-6" style="text-align: center">
+      <div class="col-7" style="text-align: center">
         <button class="btn btn-primary" style="margin-top: 20px; width: 150px">
-          ADD POST
+          {{ $t("addPost") }}
         </button>
+        <PostsCard />
+        <PostsCard />
+        <PostsCard />
       </div>
-      <div
-        class="col-3"
-        style="text-align: center; background-color: #f0f0f0; padding: 10px"
-      >
-        <form class="d-flex" role="search" style="margin-left: 10px">
-          <input
-            class="form-control me-2"
-            type="search"
-            :placeholder="$t('navBarSearch')"
-            aria-label="Search"
-            style="font-size: 14px"
-          />
-          <button class="btn btn-outline-success" type="submit">
-            {{ $t("navBarSearch") }}
-          </button>
-        </form>
-        <ul class="list-group" style="margin-top: 30px; border: none">
-          <li class="list-group-item" style="border: none">
-            <div class="box-title" style="width: 100%">{{ $t("users") }}</div>
-            <div class="list-group-item-content">
-              <ul
-                style="
-                  padding-left: 10;
-                  list-style-type: none;
-                  text-align: left;
-                "
-              >
-                <li>
-                  <a
-                    href="#"
-                    onclick="openUserCard('Iva')"
-                    style="color: #007bff; font-weight: normal"
-                    >Iva Ivičić</a
-                  >
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    onclick="openUserCard('Marko')"
-                    style="color: #007bff; font-weight: normal"
-                    >Marko Marković</a
-                  >
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    onclick="openUserCard('Ana')"
-                    style="color: #007bff; font-weight: normal"
-                    >Ana Aničić</a
-                  >
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    onclick="openUserCard('Blablablablabla')"
-                    style="color: #007bff; font-weight: normal"
-                    >Blablablablabla Blablalbabičić</a
-                  >
-                </li>
-              </ul>
-            </div>
-          </li>
-        </ul>
+      <div class="col-3" style="padding-left: 20px">
+        <div
+          class="col-content"
+          style="
+            text-align: center;
+            background-color: #f0f0f0;
+            padding: 20px;
+            padding-bottom: 40px;
+          "
+        >
+          <form class="d-flex" role="search" style="margin-left: 10px">
+            <input
+              class="form-control me-2"
+              type="search"
+              :placeholder="$t('navBarSearch')"
+              aria-label="Search"
+              style="font-size: 14px"
+            />
+            <button class="btn btn-outline-success" type="submit">
+              {{ $t("navBarSearch") }}
+            </button>
+          </form>
+          <ul class="list-group" style="margin-top: 30px; border: none">
+            <li class="list-group-item" style="border: none">
+              <div class="box-title" style="width: 100%">{{ $t("users") }}</div>
+              <div class="list-group-item-content">
+                <ul
+                  style="
+                    padding-left: 10;
+                    list-style-type: none;
+                    text-align: left;
+                  "
+                >
+                  <li>
+                    <a
+                      href="#"
+                      onclick="openUserCard('Iva')"
+                      style="color: #007bff; font-weight: normal"
+                      >Iva Ivičić</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      href="#"
+                      onclick="openUserCard('Marko')"
+                      style="color: #007bff; font-weight: normal"
+                      >Marko Marković</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      href="#"
+                      onclick="openUserCard('Ana')"
+                      style="color: #007bff; font-weight: normal"
+                      >Ana Aničić</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      href="#"
+                      onclick="openUserCard('Blablablablabla')"
+                      style="color: #007bff; font-weight: normal"
+                      >Blablablablabla Blablalbabičić</a
+                    >
+                  </li>
+                </ul>
+              </div>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
 </template>
       
-    <script>
+<script>
+import PostsCard from "@/components/PostsCard.vue";
+
 export default {
   name: "Posts",
+  components: {
+    PostsCard,
+  },
   data() {
     return {
       isOpen: false,
