@@ -113,9 +113,7 @@
         <button class="btn btn-primary" style="margin-top: 20px; width: 150px">
           {{ $t("addPost") }}
         </button>
-        <PostsCard :cards="cards" />
-        <PostsCard />
-        <PostsCard />
+        <PostsCard :cards="filteredCards" />
       </div>
       <div class="col-3" style="padding-left: 20px">
         <div
@@ -129,15 +127,13 @@
         >
           <form class="d-flex" role="search" style="margin-left: 10px">
             <input
+              v-model="store.searchTerm"
               class="form-control me-2"
               type="search"
               :placeholder="$t('navBarSearch')"
               aria-label="Search"
               style="font-size: 14px"
             />
-            <button class="btn btn-outline-success" type="submit">
-              {{ $t("navBarSearch") }}
-            </button>
           </form>
           <ul class="list-group" style="margin-top: 30px; border: none">
             <li class="list-group-item" style="border: none">
@@ -194,6 +190,7 @@
       
 <script>
 import PostsCard from "@/components/PostsCard.vue";
+import store from "@/store";
 
 let cards = [];
 cards = [
@@ -242,8 +239,20 @@ export default {
       isOpen: false,
       activeDropdown: null,
       dropdownWidth: 0,
+      store: store,
     };
   },
+  computed: {
+    filteredCards() {
+      let searchTerm = this.store.searchTerm.toLowerCase();
+      return this.cards.filter((card) =>
+        ["title", "subject", "comment", "user"].some((prop) =>
+          card[prop].toLowerCase().includes(searchTerm)
+        )
+      );
+    },
+  },
+
   methods: {
     toggleDropdown(dropdownNumber) {
       console.log("Toggling dropdown state");
