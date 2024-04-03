@@ -8,6 +8,7 @@ const messages = {
     navBarLanguage: "Language",
     navBarSearch: "Search",
     navBarUserCard: "User Card",
+    navBarStudentCorner: "Student Corner",
     navBarLogOut: "Log Out",
     loginTitle: "Login to Your Account",
     loginNoAccountYet: "Don`t have an account yet?",
@@ -31,6 +32,7 @@ const messages = {
     browseCategories: "BROWSE CATEGORIES",
     users: "USERS",
     addPost: "ADD POST",
+    addForum: "ADD POST",
   },
   hr: {
     navBarHome: "Početna",
@@ -39,6 +41,7 @@ const messages = {
     navBarLanguage: "Jezik",
     navBarSearch: "Pretraživanje",
     navBarUserCard: "Kartica korisnika",
+    navBarStudentCorner: "Studentski Kutak",
     navBarLogOut: "Odjava korisnika",
     loginTitle: "Prijava korisnika",
     loginNoAccountYet: "Nemate korisnički račun?",
@@ -62,6 +65,7 @@ const messages = {
     browseCategories: "PREGLED KATEGORIJA",
     users: "KORISNICI",
     addPost: "DODAJ OBJAVU",
+    addForum: "DODAJ OBJAVU",
   },
 };
 

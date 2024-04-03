@@ -1,38 +1,66 @@
 <template>
   <nav>
-    <nav v-if="!showSplash" class="navbar bg-body-tertiary" style="margin-bottom: 20px">
+    <nav
+      v-if="!showSplash"
+      class="navbar bg-body-tertiary"
+      style="margin-bottom: 20px"
+    >
       <div class="container-fluid">
-        <img src="@/assets/logo.png" alt="Logo" height="45" class="d-inline-blockojk align-text-top" />
+        <img
+          src="@/assets/logo.png"
+          alt="Logo"
+          height="45"
+          class="d-inline-blockojk align-text-top"
+        />
         <router-link v-if="currentUser" to="/home">{{
           $t("navBarHome")
-          }}</router-link>
+        }}</router-link>
         |
         <router-link v-if="currentUser" to="/posts">{{
           $t("navBarPosts")
-          }}</router-link>
+        }}</router-link>
         |
-        <router-link v-if="!currentUser" to="/login">{{
+        <router-link v-if="currentUser" to="/login">{{
           $t("navBarLogin")
-          }}</router-link>
+        }}</router-link>
         |
-        <router-link v-if="!currentUser" to="/signup">{{
+        <router-link v-if="currentUser" to="/signup">{{
           $t("navBarSignup")
-          }}</router-link>
+        }}</router-link>
         |
         <router-link v-if="currentUser" to="/usercard">{{
           $t("navBarUserCard")
-          }}</router-link>
+        }}</router-link>
         |
-        <router-link v-if="currentUser" to="/logout" @click.prevent="logout()">{{ $t("navBarLogOut") }}</router-link>
+        <router-link v-if="currentUser" to="/studentcorner">{{
+          $t("navBarStudentCorner")
+        }}</router-link>
+        |
+        <router-link
+          v-if="currentUser"
+          to="/logout"
+          @click.prevent="logout()"
+          >{{ $t("navBarLogOut") }}</router-link
+        >
         |
         <div class="dropdown">
-          <button class="btn btn-link dropdown-toggle custom-dropdown-toggle" type="button" id="dropdownMenuButton"
-            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <button
+            class="btn btn-link dropdown-toggle custom-dropdown-toggle"
+            type="button"
+            id="dropdownMenuButton"
+            data-bs-toggle="dropdown"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
             {{ $t("navBarLanguage") }}
           </button>
           <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            <button v-for="entry in languages" :key="entry.title" @click="changeLocale(entry.language)"
-              class="dropdown-item">
+            <button
+              v-for="entry in languages"
+              :key="entry.title"
+              @click="changeLocale(entry.language)"
+              class="dropdown-item"
+            >
               {{ entry.title }}
             </button>
           </div>
@@ -84,7 +112,7 @@ auth.onAuthStateChanged((user) => {
 
 export default {
   components: {
-    SplashScreen
+    SplashScreen,
   },
   data() {
     return {
@@ -112,7 +140,7 @@ export default {
   methods: {
     handleSplashFinished() {
       this.showSplash = false; // Update showSplash when splash screen is over
-      this.$router.push({ name: 'login'})
+      this.$router.push({ name: "login" });
     },
     logout() {
       auth.signOut().then(() => {

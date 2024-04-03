@@ -6,6 +6,7 @@ import SignUp from "../views/Signup.vue";
 import Posts from "../views/Posts.vue";
 import UserCard from "@/views/UserCard.vue";
 import store from "@/store";
+import StudentCorner from "@/views/StudentCorner.vue";
 
 const routes = [
   {
@@ -46,6 +47,14 @@ const routes = [
     meta: {
       requiresAuth: true,
     },
+  },
+  {
+    path: "/studentcorner",
+    name: "studentcorner",
+    component: StudentCorner,
+    //meta: {
+    //  requiresAuth: true,
+    //},
   },
 ];
 
