@@ -1,11 +1,10 @@
 <template>
-  <div>
-    <div class="splash-screen" :class="{ 'show': showSplash }">
-      <img alt="FIPULSE logo" src="@/assets/logo.png" class="logo" />
-      <h1>Welcome to FIPULSE page.</h1>
+    <div>
+      <div class="splash-screen" :class="{ 'show': showSplash }">
+        <img alt="FIPULSE logo" src="@/assets/logo.png" class="logo" />
+        <h1>Welcome to FIPULSE page.</h1>
+      </div>
     </div>
-    <router-view v-if="showSplash" />
-  </div>
 </template>
 
 <script>
@@ -15,13 +14,14 @@ export default {
     return {
       showSplash: false
     };
-  },
+  }, 
   mounted() {
     setTimeout(() => {
       this.showSplash = true;
       setTimeout(() => {
         this.showSplash = false;
         setTimeout(() => {
+          this.$emit('splashFinished');
           this.$router.push({ name: 'login' });
         }, 500);
       }, 4000);
@@ -43,6 +43,11 @@ export default {
 
 .splash-screen.show {
   opacity: 1;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
 }
 
 .logo {
