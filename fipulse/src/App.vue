@@ -12,36 +12,33 @@
           height="45"
           class="d-inline-blockojk align-text-top"
         />
-        <router-link v-if="currentUser" to="/home">{{
+        <router-link v-if="isVisible" to="/home">{{
           $t("navBarHome")
         }}</router-link>
         |
-        <router-link v-if="currentUser" to="/posts">{{
+        <router-link v-if="isVisible" to="/posts">{{
           $t("navBarPosts")
         }}</router-link>
         |
-        <router-link v-if="currentUser" to="/login">{{
+        <router-link v-if="!isVisible" to="/login">{{
           $t("navBarLogin")
         }}</router-link>
         |
-        <router-link v-if="currentUser" to="/signup">{{
+        <router-link v-if="!isVisible" to="/signup">{{
           $t("navBarSignup")
         }}</router-link>
         |
-        <router-link v-if="currentUser" to="/usercard">{{
+        <router-link v-if="isVisible" to="/usercard">{{
           $t("navBarUserCard")
         }}</router-link>
         |
-        <router-link v-if="currentUser" to="/studentcorner">{{
+        <router-link v-if="isVisible" to="/studentcorner">{{
           $t("navBarStudentCorner")
         }}</router-link>
         |
-        <router-link
-          v-if="currentUser"
-          to="/logout"
-          @click.prevent="logout()"
-          >{{ $t("navBarLogOut") }}</router-link
-        >
+        <router-link v-if="isVisible" to="/logout" @click.prevent="logout()">{{
+          $t("navBarLogOut")
+        }}</router-link>
         |
         <div class="dropdown">
           <button
@@ -65,19 +62,6 @@
             </button>
           </div>
         </div>
-        <!--
-        <form class="d-flex" role="search">
-          <input
-            class="form-control me-2"
-            type="search"
-            :placeholder="$t('navBarSearch')"
-            aria-label="Search"
-          />
-          <button class="btn btn-outline-success" type="submit">
-            {{ $t("navBarSearch") }}
-          </button>
-        </form>
-        -->
       </div>
     </nav>
     <SplashScreen v-if="showSplash" @splashFinished="handleSplashFinished" />
@@ -88,72 +72,57 @@
 <script>
 import store from "@/store";
 import i18n from "@/plugins/i18n";
-import { auth } from "@/firebase";
 import router from "@/router";
 import SplashScreen from "./views/SplashScreen.vue";
+import { firebase } from "@/firebase";
 
-auth.onAuthStateChanged((user) => {
-  const currentRoute = router.currentRoute;
-
+firebase.auth().onAuthStateChanged((user) => {
   if (user) {
-    console.log(user.email);
     store.currentUser = user.email;
-
-    if (!currentRoute?.meta?.requiresAuth) {
-    }
   } else {
-    console.log("No user.");
     store.currentUser = null;
-    if (currentRoute?.meta?.requiresAuth) {
-      router.push({ name: "login" });
-    }
+    router.push({ name: "login" });
   }
 });
 
 export default {
+  name: "app",
   components: {
     SplashScreen,
   },
   data() {
     return {
       showSplash: true,
-      store,
       languages: [
         { language: "en", title: "English" },
         { language: "hr", title: "Hrvatski" },
       ],
     };
   },
-  watch: {
-    "$store.state.currentUser"(newVal, oldVal) {
-      // Handle changes to the currentUser state
-      // For example, you can perform navigation logic here
-      if (newVal !== null) {
-        // User is logged in, navigate to the appropriate route
-        this.$router.push({ name: "home" });
-      } else {
-        // User is logged out, navigate to the login route
-        this.$router.push({ name: "login" });
-      }
-    },
-  },
   methods: {
     handleSplashFinished() {
-      this.showSplash = false; // Update showSplash when splash screen is over
+      this.showSplash = false;
       this.$router.push({ name: "login" });
     },
     logout() {
-      auth.signOut().then(() => {
-        this.$router.push({ name: "login" });
-      });
+      firebase
+        .auth()
+        .signOut()
+        .then(() => {
+          this.$router.push({ name: "login" });
+        });
     },
     changeLocale(locale) {
       i18n.global.locale = locale;
     },
   },
   computed: {
+    isVisible() {
+      return this.$route.meta.requiresAuth === true;
+    },
+
     currentUser() {
-      return store.currentUser !== null;
+      return store.currentUser;
     },
   },
 };

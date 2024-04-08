@@ -1,18 +1,17 @@
 import { createRouter, createWebHistory } from "vue-router";
-import HomeView from "../views/Home.vue";
 import SplashScreen from "../views/SplashScreen.vue";
+import HomeView from "../views/Home.vue";
 import Login from "../views/Login.vue";
 import SignUp from "../views/Signup.vue";
 import Posts from "../views/Posts.vue";
-import UserCard from "@/views/UserCard.vue";
-import store from "@/store";
-import StudentCorner from "@/views/StudentCorner.vue";
+import UserCard from "../views/UserCard.vue";
+import StudentCorner from "../views/StudentCorner.vue";
 
 const routes = [
   {
     path: "/",
     name: "splash-screen",
-    component: SplashScreen,
+    component: SplashScreen
   },
   {
     path: "/home",
@@ -20,25 +19,25 @@ const routes = [
     component: HomeView,
     meta: {
       requiresAuth: true,
-    },
+    }
   },
   {
     path: "/login",
     name: "login",
-    component: Login,
+    component: Login
   },
   {
     path: "/signup",
     name: "signup",
-    component: SignUp,
+    component: SignUp
   },
   {
     path: "/posts",
     name: "posts",
     component: Posts,
-    //meta: {
-    //  requiresAuth: true,
-    //},
+    meta: {
+      requiresAuth: true,
+    }
   },
   {
     path: "/usercard",
@@ -46,31 +45,25 @@ const routes = [
     component: UserCard,
     meta: {
       requiresAuth: true,
-    },
+    }
   },
   {
     path: "/studentcorner",
     name: "studentcorner",
     component: StudentCorner,
-    //meta: {
-    //  requiresAuth: true,
-    //},
+    meta: {
+      requiresAuth: true,
+    }
   },
+  {
+    path: "/logout",
+    name: "logout"
+  }
 ];
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
-});
-
-router.beforeEach((to, from, next) => {
-  const isLoggedIn = store.currentUser === null;
-
-  if (isLoggedIn && to.meta.requiresAuth) {
-    next("login");
-  } else {
-    next();
-  }
 });
 
 export default router;
