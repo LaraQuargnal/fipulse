@@ -87,11 +87,14 @@
 </style>
 
 <script>
-import { createUserWithEmailAndPassword } from "firebase/auth"; // Dodajte import ovdje
-import { auth } from "../firebase";
+//import firebase from "firebase/app";
+import { firebase } from "@/firebase";
+//import { createUserWithEmailAndPassword } from "firebase/auth"; // Dodajte import ovdje
+//import auth from "../firebase";
+//import { auth } from "@/firebase";
 
 export default {
-  name: "Signup",
+  name: "signup",
   //data je function
   data() {
     return {
@@ -105,7 +108,9 @@ export default {
   methods: {
     signup() {
       // Koristi auth objekat za prijavu
-      createUserWithEmailAndPassword(auth, this.email, this.password)
+      firebase
+        .auth()
+        .createUserWithEmailAndPassword(this.email, this.password)
         .then((userCredential) => {
           // Uspješna registracija
           console.log("Uspješna registracija.", userCredential.user);

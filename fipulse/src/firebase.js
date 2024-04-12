@@ -1,19 +1,31 @@
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getDatabase } from "firebase/database";
+import firebase from "firebase/app";
+import "firebase/auth";
+import "firebase/firestore";
+
+//import { initializeApp } from "firebase/app";
+//import { getAuth } from "firebase/auth";
+//import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyA9Q9fmTz7saYuEeVzxQydhR6o8cp002Kw",
-  authDomain: "fipulse.firebaseapp.com",
-  projectId: "fipulse",
-  storageBucket: "fipulse.appspot.com",
-  messagingSenderId: "332641683387",
-  appId: "1:332641683387:web:227d595a3cc6be71d8e69e",
+  apiKey: "AIzaSyAbuf8N2fSHau0HkmY2Q_jJASjnQ-Epkas",
+  authDomain: "fipulse-ac851.firebaseapp.com",
+  projectId: "fipulse-ac851",
+  storageBucket: "fipulse-ac851.appspot.com",
+  messagingSenderId: "173128409252",
+  appId: "1:173128409252:web:e19349ce2a8eca6d110631"
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const database = getDatabase(app);
+const app = firebase.initializeApp(firebaseConfig);
+//firebase.auth();
+//firebase.database();
+//const auth = firebase.auth(); //const auth = firebase.auth(); ovo je isto funkcionirali za sada
+//const database = getDatabase(app);
 
-export { app, auth, database };
+export {
+  app,
+  //auth,
+  firebase
+
+}
+//export { app, auth, database };

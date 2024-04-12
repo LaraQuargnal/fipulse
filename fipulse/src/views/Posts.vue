@@ -115,7 +115,7 @@
         </button>
         <PostsCard :cards="filteredCards" />
       </div>
-      <div class="col-3" style="padding-left: 20px">
+      <div class="col-3" style="padding-left: 50px">
         <div
           class="col-content"
           style="
@@ -125,7 +125,7 @@
             padding-bottom: 40px;
           "
         >
-          <form class="d-flex" role="search" style="margin-left: 10px">
+          <form class="d-flex" role="search">
             <input
               v-model="store.searchTerm"
               class="form-control me-2"
@@ -282,14 +282,14 @@ export default {
   padding: 10px;
   margin-bottom: 5px;
   text-align: center;
-  width: 230px;
+  width: 100%;
 }
 
 .menu-button {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 230px;
+  width: 100%;
   height: 40px;
   text-align: left;
   padding-left: 20px;

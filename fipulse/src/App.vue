@@ -8,34 +8,33 @@
           height="45"
           class="d-inline-blockojk align-text-top"
         />
-        <router-link v-if="!currentUser" to="/home">{{
+        <router-link v-if="store.currentUser" to="/home">{{
           $t("navBarHome")
         }}</router-link>
         |
-        <router-link v-if="!currentUser" to="/posts">{{
+        <router-link v-if="isPostsVisible" to="/posts">{{
           $t("navBarPosts")
         }}</router-link>
+
         |
-        <router-link v-if="!currentUser" to="/login">{{
+        <router-link v-if="!store.currentUser" to="/login">{{
           $t("navBarLogin")
         }}</router-link>
+
         |
-        <router-link v-if="!currentUser" to="/signup">{{
+        <router-link v-if="!store.currentUser" to="/signup">{{
           $t("navBarSignup")
         }}</router-link>
         |
-        <router-link v-if="!currentUser" to="/usercard">{{
+        <router-link v-if="store.currentUser" to="/usercard">{{
           $t("navBarUserCard")
         }}</router-link>
         |
-        <router-link
-          v-if="!currentUser"
-          to="/logout"
-          @click.prevent="logout()"
-          >{{ $t("navBarLogOut") }}</router-link
-        >
+        <router-link v-if="store.currentUser" to="/logout">{{
+          $t("navBarLogOut")
+        }}</router-link>
         |
-        <div class="dropdown" v-if="!currentUser">
+        <div class="dropdown">
           <button
             class="btn btn-link dropdown-toggle custom-dropdown-toggle"
             type="button"
@@ -70,6 +69,14 @@
           </button>
         </form>
         -->
+        <a
+          href="#"
+          v-if="store.currentUser"
+          @click.prevent="logout()"
+          class="nav-link"
+        >
+          {{ $t("navBarLogOut") }}</a
+        >
       </div>
     </nav>
     <router-view />
@@ -79,28 +86,35 @@
 <script>
 import store from "@/store";
 import i18n from "@/plugins/i18n";
-import { auth } from "@/firebase";
+//import { app, auth } from "@/firebase";
+//import { auth } from "@/firebase";
 import router from "@/router";
+import { firebase } from "@/firebase";
 
-auth.onAuthStateChanged((user) => {
+firebase.auth().onAuthStateChanged((user) => {
+  console.log(
+    "Auth state changed. Current user:",
+    user ? user.email : "No user"
+  );
+
   const currentRoute = router.currentRoute;
 
   if (user) {
     console.log(user.email);
+    console.log("User is logged in. Email:", user.email);
     store.currentUser = user.email;
+    router.push({ name: "home" });
 
-    if (!currentRoute?.meta?.requiresAuth) {
-    }
+    console.log("store.currentUser updated:", store.currentUser);
   } else {
     console.log("No user.");
     store.currentUser = null;
-    if (currentRoute?.meta?.requiresAuth) {
-      router.push({ name: "login" });
-    }
+    router.push({ name: "login" });
   }
 });
 
 export default {
+  name: "app",
   data() {
     return {
       store,
@@ -110,32 +124,34 @@ export default {
       ],
     };
   },
-  watch: {
-    "$store.state.currentUser"(newVal, oldVal) {
-      // Handle changes to the currentUser state
-      // For example, you can perform navigation logic here
-      if (newVal !== null) {
-        // User is logged in, navigate to the appropriate route
-        this.$router.push({ name: "home" });
-      } else {
-        // User is logged out, navigate to the login route
-        this.$router.push({ name: "login" });
-      }
-    },
-  },
   methods: {
     logout() {
-      auth.signOut().then(() => {
-        this.$router.push({ name: "login" });
-      });
+      console.log("Logging out...");
+      firebase
+        .auth()
+        .signOut()
+        .then(() => {
+          console.log("Logout successful.");
+
+          this.$router.push({ name: "login" });
+        })
+        .catch((error) => {
+          console.error("Logout error:", error);
+        });
     },
     changeLocale(locale) {
       i18n.global.locale = locale;
     },
   },
   computed: {
+    isPostsVisible() {
+      const currentRoute = this.$route;
+      return currentRoute.meta.requiresAuth === true;
+    },
+
     currentUser() {
-      return store.currentUser !== null;
+      console.log("***** store.currentUser:", store.currentUser);
+      return store.currentUser;
     },
   },
 };

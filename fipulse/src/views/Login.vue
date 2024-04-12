@@ -17,7 +17,7 @@
                 }}</label>
                 <input
                   type="email"
-                  v-model="username"
+                  v-model="email"
                   class="form-control"
                   id="exampleInputEmail1"
                   aria-describedby="emailHelp"
@@ -31,11 +31,14 @@
                 <label for="exampleInputPassword1" style="margin-top: 10px">{{
                   $t("passwordLabel")
                 }}</label>
-                <password-input
+                <!-- tu moram dodati onaj password-input -->
+
+                <input
+                  type="password"
                   v-model="password"
                   inputId="exampleInputPassword1"
                   :placeholder="$t('passwordLabel')"
-                ></password-input>
+                />
               </div>
               <button
                 type="button"
@@ -56,27 +59,45 @@
 
 <script>
 import PasswordInput from "@/components/PasswordInput.vue";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/firebase";
+//import { auth } from "@/firebase";
+import { firebase } from "@/firebase";
+import store from "@/store";
+
+//import auth from "@/firebase";
 
 export default {
   name: "login",
   data() {
     return {
-      username: "",
+      email: "",
       password: "",
     };
   },
   methods: {
     login() {
-      signInWithEmailAndPassword(auth, this.username, this.password)
+      console.log("Email:", this.email);
+      console.log("Password:", this.password);
+      firebase
+        .auth()
+        .signInWithEmailAndPassword(this.email, this.password)
         .then((userCredential) => {
           // Uspješna registracija
-          console.log("Uspješna prijava.", userCredential.user);
+          console.log("Uspješna prijava.", userCredential.user.email);
+          store.currentUser = userCredential.user.email;
+          console.log("* store.currentUser:", store.currentUser);
+
+          console.log(
+            "User is logged in:",
+            firebase.auth().currentUser
+              ? firebase.auth().currentUser.email
+              : "No user logged in"
+          );
+
+          this.$router.replace({ name: "home" });
         })
         .catch((error) => {
           // Greška prilikom registracije
-          console.error("Došlo je do greške.", error);
+          console.error("Došlo je do greške login.", error);
         });
     },
   },
