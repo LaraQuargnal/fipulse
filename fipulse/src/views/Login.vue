@@ -85,7 +85,7 @@ export default {
               : "No user logged in"
           );
 
-          this.$router.replace({ name: "home" });
+          this.$router.replace({ name: "posts" });
         })
         .catch((error) => {
           console.error("Došlo je do greške login.", error);
