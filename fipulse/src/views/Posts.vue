@@ -110,12 +110,77 @@
         </div>
       </div>
       <div class="col-7" style="text-align: center">
-        <button class="btn btn-primary" style="margin-top: 20px; width: 150px">
-          {{ $t("addPost") }}
-        </button>
+        <form @submit.prevent="createNewPost" style="margin-top: 20px">
+          <div class="form-group">
+            <label for="userInput">User:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="userInput"
+              v-model="newPost.user"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="dateInput">Date:</label>
+            <input
+              type="date"
+              class="form-control"
+              id="dateInput"
+              v-model="newPost.date"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="titleInput">Title:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="titleInput"
+              v-model="newPost.title"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="subjectInput">Subject:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="subjectInput"
+              v-model="newPost.subject"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="commentInput">Comment:</label>
+            <textarea
+              class="form-control"
+              id="commentInput"
+              v-model="newPost.comment"
+              required
+            ></textarea>
+          </div>
+          <div class="form-group">
+            <label for="attachmentInput">Attachment:</label>
+            <input
+              type="file"
+              class="form-control-file"
+              id="attachmentInput"
+              @change="handleFileUpload"
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            style="margin-top: 20px; width: 150px"
+          >
+            {{ $t("addPost") }}
+          </button>
+        </form>
         <PostsCard :cards="filteredCards" />
       </div>
-      <div class="col-3" style="padding-left: 20px">
+      <div class="col-3" style="padding-left: 50px">
         <div
           class="col-content"
           style="
@@ -125,7 +190,7 @@
             padding-bottom: 40px;
           "
         >
-          <form class="d-flex" role="search" style="margin-left: 10px">
+          <form class="d-flex" role="search">
             <input
               v-model="store.searchTerm"
               class="form-control me-2"
@@ -240,6 +305,14 @@ export default {
       activeDropdown: null,
       dropdownWidth: 0,
       store: store,
+      newPost: {
+        user: "",
+        date: "",
+        title: "",
+        subject: "",
+        comment: "",
+        attachment: null,
+      },
     };
   },
   computed: {
@@ -282,14 +355,14 @@ export default {
   padding: 10px;
   margin-bottom: 5px;
   text-align: center;
-  width: 230px;
+  width: 100%;
 }
 
 .menu-button {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 230px;
+  width: 100%;
   height: 40px;
   text-align: left;
   padding-left: 20px;
