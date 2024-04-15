@@ -106,10 +106,25 @@ export default {
         .createUserWithEmailAndPassword(this.email, this.password)
         .then((userCredential) => {
           console.log("Uspješna registracija.", userCredential.user);
+          const user = userCredential.user;
+          user.updateProfile({
+            displayName: this.nickname
+          })
+            .then(() => {
+              // Dodatno pohranite nickname korisnika u Firebase Realtime Database
+              firebase.database().ref('users/' + user.uid).set({
+                nickname: this.nickname,
+                email: user.email
+                // Dodajte druge informacije o korisniku ovdje ako je potrebno
+              })
+                .catch((error) => {
+                  console.error("Greška pri spremanju podataka.", error);
+                });
+            })
+            .catch(function (error) {
+              console.error("Došlo je do greške.", error);
+            });
         })
-        .catch(function (error) {
-          console.error("Došlo je do greške.", error);
-        });
     },
   },
 };
