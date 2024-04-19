@@ -6,6 +6,8 @@ import SignUp from "../views/Signup.vue";
 import Posts from "../views/Posts.vue";
 import UserCard from "../views/UserCard.vue";
 import StudentCorner from "../views/StudentCorner.vue";
+import store from "@/store";
+
 
 const routes = [
   {
@@ -64,6 +66,16 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
+});
+// maknuti sve
+router.beforeEach((to, from, next) => {
+  const isLoggedIn = store.currentUser === null;
+
+  if (isLoggedIn && to.meta.requiresAuth) {
+    next();
+  } else {
+    next();
+  }
 });
 
 export default router;

@@ -92,7 +92,8 @@ export default {
   },
   data() {
     return {
-      showSplash: true,
+      showSplash: false, //ovo u true
+      store, // ovo maknuti
       languages: [
         { language: "en", title: "English" },
         { language: "hr", title: "Hrvatski" },

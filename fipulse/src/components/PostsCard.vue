@@ -6,7 +6,7 @@
           <span class="user-name">{{ card.user }}</span>
         </div>
         <div class="post-date">
-          <span>{{ card.date }}</span>
+          <span>{{ formatDate(card.date) }}</span>
         </div>
       </div>
       <h3 class="post-title">{{ card.subject }}</h3>
@@ -20,12 +20,19 @@
 </template>
 
 <script>
+import moment from "moment";
+
 export default {
   name: "PostsCard",
   props: {
     cards: {
       type: Array,
       required: true,
+    },
+  },
+  methods: {
+    formatDate(date) {
+      return moment(date).fromNow();
     },
   },
 };

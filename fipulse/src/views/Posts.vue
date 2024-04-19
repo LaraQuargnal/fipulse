@@ -112,26 +112,6 @@
       <div class="col-7" style="text-align: center">
         <form @submit.prevent="createNewPost" style="margin-top: 20px">
           <div class="form-group">
-            <label for="userInput">User:</label>
-            <input
-              type="text"
-              class="form-control"
-              id="userInput"
-              v-model="newPost.user"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <label for="dateInput">Date:</label>
-            <input
-              type="date"
-              class="form-control"
-              id="dateInput"
-              v-model="newPost.date"
-              required
-            />
-          </div>
-          <div class="form-group">
             <label for="titleInput">Title:</label>
             <input
               type="text"
@@ -178,7 +158,16 @@
             {{ $t("addPost") }}
           </button>
         </form>
-        <PostsCard :cards="filteredCards" />
+        <button class="btn btn-primary" @click="openModal">
+          Open Empty Form Modal
+        </button>
+        <div class="modal" v-if="isModalOpen">
+          <div class="modal-content">
+            <span class="close" @click="closeModal">&times;</span>
+            <p>OK</p>
+          </div>
+        </div>
+        <PostsCard :cards="filteredCards" :key="cards.id" />
       </div>
       <div class="col-3" style="padding-left: 50px">
         <div
@@ -256,42 +245,7 @@
 <script>
 import PostsCard from "@/components/PostsCard.vue";
 import store from "@/store";
-
-let cards = [];
-cards = [
-  {
-    user: "Iva Ivičić",
-    date: "2021-06-01",
-    title: "Skripta programsko inženjerstvo",
-    subject: "PI",
-    comment: "Imate skriptu, ali nije još gotova jer blabblablablabla",
-    attachment: "PI_skripta.pdf",
-  },
-  {
-    user: "Marko Marković",
-    date: "2021-06-02",
-    title: "tutorial o programiranju",
-    subject: "OP",
-    comment: "sdf sdf sf re dfg dfg dfg dfg dfg dfg dfg dfg dfg dfg ",
-    attachment: "tutorial.pdf",
-  },
-  {
-    user: "Ana Aničić",
-    date: "2021-06-03",
-    title: "Vjezbe iz SPA",
-    subject: "SPA",
-    comment: "sdflsdfljsdflksdflksdfjklsdljkf",
-    attachment: "primjer vježbi.jpg",
-  },
-  {
-    user: "Blablablablabla Blablalbabičić",
-    date: "2021-06-04",
-    title: "Odgovori na pitanja za samoprocjenu",
-    subject: "IT Management",
-    comment: "dfg dfg dfg dfg dfg dfg dfg ",
-    attachment: "IT_odgovori.docx",
-  },
-];
+import { db } from "@/firebase";
 
 export default {
   name: "Posts",
@@ -300,7 +254,8 @@ export default {
   },
   data() {
     return {
-      cards: cards,
+      isModalOpen: false,
+      cards: [],
       isOpen: false,
       activeDropdown: null,
       dropdownWidth: 0,
@@ -315,18 +270,60 @@ export default {
       },
     };
   },
+  mounted() {
+    this.getPosts();
+  },
   computed: {
     filteredCards() {
       let searchTerm = this.store.searchTerm.toLowerCase();
       return this.cards.filter((card) =>
-        ["title", "subject", "comment", "user"].some((prop) =>
-          card[prop].toLowerCase().includes(searchTerm)
-        )
+        ["title", "subject", "comment", "user"].some((prop) => {
+          const value = card[prop];
+          return (
+            typeof value === "string" &&
+            value.toLowerCase().includes(searchTerm)
+          );
+        })
       );
     },
   },
 
   methods: {
+    openModal() {
+      console.log("Opening modal");
+      this.isModalOpen = true;
+    },
+    closeModal() {
+      this.isModalOpen = false;
+    },
+    handleFileUpload(event) {
+      console.log("File uploaded", event.target.files[0]);
+    },
+    getPosts() {
+      db.collection("posts")
+        .orderBy("postead_at", "desc")
+        .limit(20)
+        .get()
+        .then((querySnapshot) => {
+          this.cards = [];
+          querySnapshot.forEach((doc) => {
+            console.log(`${doc.id} => ${doc.data()}`);
+            this.cards.push({
+              id: doc.id,
+              time: doc.data().time,
+              user: doc.data().user,
+              date: doc.data().postead_at,
+              title: doc.data().title,
+              subject: doc.data().subject,
+              comment: doc.data().comment,
+              attachment: doc.data().attachment,
+            });
+          });
+        })
+        .catch((error) => {
+          console.log("Error getting documents: ", error);
+        });
+    },
     toggleDropdown(dropdownNumber) {
       console.log("Toggling dropdown state");
       if (this.activeDropdown === dropdownNumber) {
@@ -343,6 +340,40 @@ export default {
     selectMenuItem(item) {
       console.log(`Selected menu item: ${item}`);
       // TODO: cekamo bazu da dodamo na klik na item
+    },
+    createNewPost() {
+      console.log("Creating new post");
+      console.log(this.newPost);
+      const title = this.newPost.title;
+      const subject = this.newPost.subject;
+      const comment = this.newPost.comment;
+      const attachment = this.newPost.attachment;
+
+      db.collection("posts")
+        .add({
+          user: store.currentUser,
+          postead_at: Date.now(),
+          title: title,
+          subject: subject,
+          comment: comment,
+          attachment: attachment,
+        })
+        .then((doc) => {
+          console.log("Document successfully written!", doc);
+
+          this.newPost = {
+            user: "",
+            date: "",
+            title: "",
+            subject: "",
+            comment: "",
+            attachment: null,
+          };
+          this.getPosts();
+        })
+        .catch((error) => {
+          console.error("Error writing document: ", error);
+        });
     },
   },
 };
