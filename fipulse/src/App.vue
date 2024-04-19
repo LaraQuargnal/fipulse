@@ -1,10 +1,6 @@
 <template>
   <nav>
-    <nav
-      v-if="!showSplash"
-      class="navbar bg-body-tertiary"
-      style="margin-bottom: 20px"
-    >
+    <nav class="navbar bg-body-tertiary" style="margin-bottom: 20px">
       <div class="container-fluid">
         <img
           src="@/assets/logo.png"
@@ -64,7 +60,7 @@
         </div>
       </div>
     </nav>
-    <SplashScreen v-if="showSplash" @splashFinished="handleSplashFinished" />
+    <SplashScreen v-if="showSplash" />
     <router-view v-else />
   </nav>
 </template>
@@ -92,7 +88,6 @@ export default {
   },
   data() {
     return {
-      showSplash: true,
       languages: [
         { language: "en", title: "English" },
         { language: "hr", title: "Hrvatski" },
@@ -100,10 +95,6 @@ export default {
     };
   },
   methods: {
-    handleSplashFinished() {
-      this.showSplash = false;
-      this.$router.push({ name: "login" });
-    },
     logout() {
       firebase
         .auth()

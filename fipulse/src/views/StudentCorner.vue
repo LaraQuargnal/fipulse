@@ -27,29 +27,29 @@ StudentCorner.vue:
           v-for="post in forum"
           :key="post.id"
           class="post"
-          style="border: 1px solid #ccc; padding: 10px; margin-top: 20px"
+          style="
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 20px;
+            background-color: #e6f7ff;
+          "
         >
-          <!-- Username and Time -->
           <div style="display: flex; justify-content: space-between">
             <div style="font-weight: bold">{{ post.userDisplayName }}</div>
             <div>{{ postedFromNow(post) }}</div>
           </div>
-          <div style="border: 1px solid #ccc; padding: 10px; margin-top: 10px">
-            <p>{{ post.que }}</p>
+          <div style="padding: 10px; margin-top: 10px">
+            <b>{{ post.que }}</b>
           </div>
-
-          <!-- Prikaz odgovora -->
           <div v-if="post.answers && post.answers.length > 0">
             <div
               v-for="answer in post.answers"
               :key="answer.id"
-              style="border: 1px solid #ccc; padding: 5px"
+              style="border: 1px solid #cccccc; padding: 5px"
             >
               <p>{{ answer.answer }} ({{ answer.userDisplayName }})</p>
             </div>
           </div>
-
-          <!-- Forma za unos odgovora -->
           <form @submit.prevent="submitAnswer(post)" style="margin-top: 10px">
             <div class="form-group">
               <input
@@ -145,14 +145,11 @@ StudentCorner.vue:
 <script>
 import store from "@/store";
 import moment from "moment";
-import PostsCard from "@/components/PostsCard.vue";
+import { firebase } from "@/firebase";
 import { db } from "@/firebase";
 
 export default {
   name: "StudentCorner",
-  components: {
-    PostsCard,
-  },
   data() {
     return {
       question: "",
@@ -163,8 +160,6 @@ export default {
   },
   mounted() {
     this.getPostsAndAnswers();
-    //this.getPosts();
-    //this.getAnswers();
   },
   methods: {
     getPostsAndAnswers() {
@@ -173,6 +168,7 @@ export default {
         .limit(50)
         .get()
         .then((querySnapshot) => {
+          this.forum = [];
           querySnapshot.forEach((doc) => {
             const data = doc.data();
             const userDisplayName = data.userDisplayName || data.email;
@@ -186,11 +182,7 @@ export default {
               que: data.que,
               answer: answer,
             };
-
-            // Dodajemo post u forum
             this.forum.push(post);
-
-            // Pozivamo metodu za dobijanje odgovora za trenutni post
             this.getAnswers(post.id);
           });
         })
@@ -204,7 +196,9 @@ export default {
         .limit(50)
         .get()
         .then((query) => {
-          this.forum = [];
+          if (this.forum.length === 0) {
+            this.forum = [];
+          }
           query.forEach((doc) => {
             const data = doc.data();
             const userDisplayName = data.userDisplayName || data.email;
@@ -227,20 +221,26 @@ export default {
       }
       const question = this.question;
 
-      db.collection("forum")
-        .add({
-          que: question,
-          email: store.currentUser,
-          posted_at: Date.now(),
-        })
-        .then((doc) => {
-          console.log("Spremljeno", doc);
-          this.question = "";
-          this.getPosts();
-        })
-        .catch((e) => {
-          console.error(e);
-        });
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+          this.currentUserNickname = user.displayName;
+          db.collection("forum")
+            .add({
+              que: question,
+              email: store.currentUser,
+              posted_at: Date.now(),
+              userDisplayName: this.currentUserNickname,
+            })
+            .then((doc) => {
+              console.log("Spremljeno", doc);
+              this.question = "";
+              this.getPostsAndAnswers();
+            })
+            .catch((e) => {
+              console.error(e);
+            });
+        }
+      });
     },
     getAnswers(postId) {
       db.collection("forum")
@@ -252,11 +252,11 @@ export default {
           const answers = [];
           querySnapshot.forEach((doc) => {
             const data = doc.data();
-            const userDisplayName = data.userDisplayName || data.email;
+            const userNickname = data.userNickname || data.email;
             answers.push({
               id: doc.id,
               user: data.email,
-              userDisplayName: userDisplayName,
+              userDisplayName: userNickname,
               date: data.posted_at,
               answer: data.answer,
             });
@@ -277,6 +277,12 @@ export default {
       const postIdValue = post.id;
       const answer = post.answer;
 
+      const currentUser = firebase.auth().currentUser;
+
+  if (currentUser) {
+    const userNickname = currentUser.displayName;
+
+
       db.collection("forum")
         .doc(postIdValue)
         .collection("answers")
@@ -284,18 +290,20 @@ export default {
           answer: answer,
           email: store.currentUser,
           posted_at: Date.now(),
+          userNickname: userNickname
         })
         .then(() => {
           console.log("Answer successfully saved.");
-          // Dohvati i ažuriraj odgovore nakon što se odgovor sprema
           this.getAnswers(postIdValue);
-          // Resetiraj polje za unos odgovora
           post.answer = "";
         })
         .catch((error) => {
           console.error("Error saving answer:", error);
         });
-    },
+    } else {
+    console.error("User not authenticated.");
+  }
+},
   },
   computed: {
     postedFromNow() {
