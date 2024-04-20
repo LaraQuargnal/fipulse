@@ -2,16 +2,33 @@ StudentCorner.vue:
 <template>
   <div class="studentcorner">
     <div class="row">
-      <div class="col-3"></div>
+      <div class="col-3">
+        <button
+          id="normalButton"
+          class="btn btn-primary"
+          @click="showDarknetPosts = false"
+          style="margin-top: 25px; width: 100%"
+        >
+          Normal
+        </button>
+        <button
+          id="darknetButton"
+          class="btn btn-primary"
+          @click="showDarknetPosts = true"
+          style="margin-top: 50px; width: 100%"
+        >
+          Darknet
+        </button>
+      </div>
       <div class="col-6">
         <form @submit.prevent="postNewForum">
           <div class="form-group">
-            <label for="question">What's on your mind?</label>
+            <label for="question">{{ $t("ForumQue") }} </label>
             <input
               v-model="question"
               type="text"
               class="form-control ml-2"
-              placeholder="Enter post or question"
+              :placeholder="$t('ForumHelp')"
               id="question"
             />
           </div>
@@ -56,7 +73,7 @@ StudentCorner.vue:
                 v-model="post.answer"
                 class="form-control ml-2"
                 rows="1"
-                placeholder="Enter your answer"
+              :placeholder="$t('Answer')"
               />
             </div>
             <button
@@ -64,7 +81,7 @@ StudentCorner.vue:
               class="btn btn-primary"
               style="margin-left: 10px"
             >
-              Submit Answer
+              {{ $t("SubmitAnswer") }}
             </button>
           </form>
         </div>
@@ -171,19 +188,33 @@ export default {
           this.forum = [];
           querySnapshot.forEach((doc) => {
             const data = doc.data();
-            const userDisplayName = data.userDisplayName || data.email;
+            let userDisplayName = data.userDisplayName || data.email;
             const answer = data.answer || "";
 
-            const post = {
-              id: doc.id,
-              user: data.email,
-              userDisplayName: userDisplayName,
-              date: data.posted_at,
-              que: data.que,
-              answer: answer,
-            };
-            this.forum.push(post);
-            this.getAnswers(post.id);
+            const userId = firebase.auth().currentUser.uid;
+            db.collection("users")
+              .doc(userId)
+              .get()
+              .then((userDoc) => {
+                if (userDoc.exists) {
+                  const userData = userDoc.data();
+                  userDisplayName = userData.nickname;
+                }
+
+                const post = {
+                  id: doc.id,
+                  user: data.email,
+                  userDisplayName: userDisplayName,
+                  date: data.posted_at,
+                  que: data.que,
+                  answer: answer,
+                };
+                this.forum.push(post);
+                this.getAnswers(post.id);
+              })
+              .catch((error) => {
+                console.error("Error getting user data:", error);
+              });
           });
         })
         .catch((error) => {
@@ -252,7 +283,7 @@ export default {
           const answers = [];
           querySnapshot.forEach((doc) => {
             const data = doc.data();
-            const userNickname = data.userNickname || data.email;
+            let userNickname = data.userNickname || data.email;
             answers.push({
               id: doc.id,
               user: data.email,
@@ -279,31 +310,44 @@ export default {
 
       const currentUser = firebase.auth().currentUser;
 
-  if (currentUser) {
-    const userNickname = currentUser.displayName;
-
-
-      db.collection("forum")
-        .doc(postIdValue)
-        .collection("answers")
-        .add({
-          answer: answer,
-          email: store.currentUser,
-          posted_at: Date.now(),
-          userNickname: userNickname
-        })
-        .then(() => {
-          console.log("Answer successfully saved.");
-          this.getAnswers(postIdValue);
-          post.answer = "";
-        })
-        .catch((error) => {
-          console.error("Error saving answer:", error);
-        });
-    } else {
-    console.error("User not authenticated.");
-  }
-},
+      if (currentUser) {
+        const userNickname = currentUser.displayName;
+        const userId = currentUser.uid;
+        db.collection("users")
+          .doc(userId)
+          .get()
+          .then((userDoc) => {
+            if (userDoc.exists) {
+              const userData = userDoc.data();
+              const userDisplayName = userData.nickname;
+              db.collection("forum")
+                .doc(postIdValue)
+                .collection("answers")
+                .add({
+                  answer: answer,
+                  email: currentUser.email,
+                  posted_at: Date.now(),
+                  userNickname: userDisplayName,
+                })
+                .then(() => {
+                  console.log("Answer successfully saved.");
+                  this.getAnswers(postIdValue);
+                  post.answer = "";
+                })
+                .catch((error) => {
+                  console.error("Error saving answer:", error);
+                });
+            } else {
+              console.error("User data not found.");
+            }
+          })
+          .catch((error) => {
+            console.error("Error getting user data:", error);
+          });
+      } else {
+        console.error("User not authenticated.");
+      }
+    },
   },
   computed: {
     postedFromNow() {

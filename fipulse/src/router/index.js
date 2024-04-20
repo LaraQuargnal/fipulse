@@ -8,12 +8,11 @@ import UserCard from "../views/UserCard.vue";
 import StudentCorner from "../views/StudentCorner.vue";
 import store from "@/store";
 
-
 const routes = [
   {
     path: "/",
     name: "splash-screen",
-    component: SplashScreen
+    component: SplashScreen,
   },
   {
     path: "/home",
@@ -21,17 +20,17 @@ const routes = [
     component: HomeView,
     meta: {
       requiresAuth: true,
-    }
+    },
   },
   {
     path: "/login",
     name: "login",
-    component: Login
+    component: Login,
   },
   {
     path: "/signup",
     name: "signup",
-    component: SignUp
+    component: SignUp,
   },
   {
     path: "/posts",
@@ -39,7 +38,7 @@ const routes = [
     component: Posts,
     meta: {
       requiresAuth: true,
-    }
+    },
   },
   {
     path: "/usercard",
@@ -47,7 +46,7 @@ const routes = [
     component: UserCard,
     meta: {
       requiresAuth: true,
-    }
+    },
   },
   {
     path: "/studentcorner",
@@ -55,27 +54,17 @@ const routes = [
     component: StudentCorner,
     meta: {
       requiresAuth: true,
-    }
+    },
   },
   {
     path: "/logout",
-    name: "logout"
-  }
+    name: "logout",
+  },
 ];
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
-});
-// maknuti sve
-router.beforeEach((to, from, next) => {
-  const isLoggedIn = store.currentUser === null;
-
-  if (isLoggedIn && to.meta.requiresAuth) {
-    next();
-  } else {
-    next();
-  }
 });
 
 export default router;

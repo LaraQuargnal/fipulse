@@ -107,16 +107,37 @@ export default {
         .then((userCredential) => {
           console.log("Uspješna registracija.", userCredential.user);
           const user = userCredential.user;
-          user.updateProfile({
-            displayName: this.nickname
-          })
+          user
+            .updateProfile({
+              displayName: this.nickname,
+            })
             .then(() => {
-              // Dodatno pohranite nickname korisnika u Firebase Realtime Database
-              firebase.database().ref('users/' + user.uid).set({
-                nickname: this.nickname,
-                email: user.email
-                // Dodajte druge informacije o korisniku ovdje ako je potrebno
-              })
+              if (this.email === "teaa15@gmail.com") {
+                user
+                  .updateProfile({
+                    darknetAccess: true,
+                  })
+                  .then(() => {
+                    console.log(
+                      "Pristup Darknetu dodijeljen korisniku s emailom teaa15@gmail.com."
+                    );
+                  })
+                  .catch((error) => {
+                    console.error(
+                      "Greška pri postavljanju pristupa Darknetu:",
+                      error
+                    );
+                  });
+              }
+              firebase
+                .firestore()
+                .collection("users")
+                .doc(user.uid)
+                .set({
+                  nickname: this.nickname,
+                  email: user.email,
+                  darknetAccess: this.email === 'teaa15@gmail.com'
+                })
                 .catch((error) => {
                   console.error("Greška pri spremanju podataka.", error);
                 });
@@ -124,7 +145,7 @@ export default {
             .catch(function (error) {
               console.error("Došlo je do greške.", error);
             });
-        })
+        });
     },
   },
 };
