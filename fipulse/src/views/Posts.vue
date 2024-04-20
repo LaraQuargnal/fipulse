@@ -110,63 +110,23 @@
         </div>
       </div>
       <div class="col-7" style="text-align: center">
-        <form @submit.prevent="createNewPost" style="margin-top: 20px">
-          <div class="form-group">
-            <label for="titleInput">Title:</label>
-            <input
-              type="text"
-              class="form-control"
-              id="titleInput"
-              v-model="newPost.title"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <label for="subjectInput">Subject:</label>
-            <input
-              type="text"
-              class="form-control"
-              id="subjectInput"
-              v-model="newPost.subject"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <label for="commentInput">Comment:</label>
-            <textarea
-              class="form-control"
-              id="commentInput"
-              v-model="newPost.comment"
-              required
-            ></textarea>
-          </div>
-          <div class="form-group">
-            <label for="attachmentInput">Attachment:</label>
-            <input
-              type="file"
-              class="form-control-file"
-              id="attachmentInput"
-              @change="handleFileUpload"
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            class="btn btn-primary"
-            style="margin-top: 20px; width: 150px"
-          >
-            {{ $t("addPost") }}
-          </button>
-        </form>
-        <button class="btn btn-primary" @click="openModal">
-          Open Empty Form Modal
+        <button
+          type="submit"
+          class="btn btn-primary"
+          @click="openModal"
+          style="margin-top: 20px; width: 300px"
+        >
+          {{ $t("addPost") }}
         </button>
-        <div class="modal" v-if="isModalOpen">
-          <div class="modal-content">
-            <span class="close" @click="closeModal">&times;</span>
-            <p>OK</p>
-          </div>
-        </div>
+        <ModalComponent
+          :isOpen="isModalOpened"
+          @modal-close="closeModal"
+          @submit="submitHandler"
+          name="first-modal"
+          :getPosts="getPosts"
+        >
+        </ModalComponent>
+        <div class="box-title" style="margin-top: 30px">RECENT POSTS</div>
         <PostsCard :cards="filteredCards" :key="cards.id" />
       </div>
       <div class="col-3" style="padding-left: 50px">
@@ -246,28 +206,28 @@
 import PostsCard from "@/components/PostsCard.vue";
 import store from "@/store";
 import { db } from "@/firebase";
+import { ref } from "vue";
+import ModalComponent from "@/components/ModalComponent.vue";
+
+const isModalOpened = ref(false);
+
+const submitHandler = () => {};
 
 export default {
   name: "Posts",
   components: {
     PostsCard,
+    ModalComponent,
   },
   data() {
     return {
-      isModalOpen: false,
       cards: [],
       isOpen: false,
+      isModalOpened: isModalOpened,
+      submitHandler: submitHandler,
       activeDropdown: null,
       dropdownWidth: 0,
       store: store,
-      newPost: {
-        user: "",
-        date: "",
-        title: "",
-        subject: "",
-        comment: "",
-        attachment: null,
-      },
     };
   },
   mounted() {
@@ -291,18 +251,15 @@ export default {
   methods: {
     openModal() {
       console.log("Opening modal");
-      this.isModalOpen = true;
+      this.isModalOpened = true;
     },
     closeModal() {
-      this.isModalOpen = false;
-    },
-    handleFileUpload(event) {
-      console.log("File uploaded", event.target.files[0]);
+      this.isModalOpened = false;
     },
     getPosts() {
       db.collection("posts")
         .orderBy("postead_at", "desc")
-        .limit(20)
+        //.limit(20)
         .get()
         .then((querySnapshot) => {
           this.cards = [];
@@ -340,40 +297,6 @@ export default {
     selectMenuItem(item) {
       console.log(`Selected menu item: ${item}`);
       // TODO: cekamo bazu da dodamo na klik na item
-    },
-    createNewPost() {
-      console.log("Creating new post");
-      console.log(this.newPost);
-      const title = this.newPost.title;
-      const subject = this.newPost.subject;
-      const comment = this.newPost.comment;
-      const attachment = this.newPost.attachment;
-
-      db.collection("posts")
-        .add({
-          user: store.currentUser,
-          postead_at: Date.now(),
-          title: title,
-          subject: subject,
-          comment: comment,
-          attachment: attachment,
-        })
-        .then((doc) => {
-          console.log("Document successfully written!", doc);
-
-          this.newPost = {
-            user: "",
-            date: "",
-            title: "",
-            subject: "",
-            comment: "",
-            attachment: null,
-          };
-          this.getPosts();
-        })
-        .catch((error) => {
-          console.error("Error writing document: ", error);
-        });
     },
   },
 };
