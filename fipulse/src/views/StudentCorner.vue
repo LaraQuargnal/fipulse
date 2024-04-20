@@ -73,7 +73,7 @@ StudentCorner.vue:
                 v-model="post.answer"
                 class="form-control ml-2"
                 rows="1"
-              :placeholder="$t('Answer')"
+                :placeholder="$t('Answer')"
               />
             </div>
             <button
@@ -112,41 +112,17 @@ StudentCorner.vue:
               <div class="list-group-item-content">
                 <ul
                   style="
-                    padding-left: 10;
+                    padding-left: 10px;
+                    text-align: center;
                     list-style-type: none;
-                    text-align: left;
                   "
                 >
-                  <li>
+                  <li v-for="user in store.users" :key="user">
                     <a
                       href="#"
-                      onclick="openUserCard('Iva')"
+                      @click="openUserCard(user)"
                       style="color: #007bff; font-weight: normal"
-                      >Iva Ivičić</a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="#"
-                      onclick="openUserCard('Marko')"
-                      style="color: #007bff; font-weight: normal"
-                      >Marko Marković</a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="#"
-                      onclick="openUserCard('Ana')"
-                      style="color: #007bff; font-weight: normal"
-                      >Ana Aničić</a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="#"
-                      onclick="openUserCard('Blablablablabla')"
-                      style="color: #007bff; font-weight: normal"
-                      >Blablablablabla Blablalbabičić</a
+                      ><b>{{ user }}</b></a
                     >
                   </li>
                 </ul>
@@ -167,6 +143,7 @@ import { db } from "@/firebase";
 
 export default {
   name: "StudentCorner",
+  store,
   data() {
     return {
       question: "",
@@ -176,6 +153,21 @@ export default {
     };
   },
   mounted() {
+    firebase
+      .firestore()
+      .collection("users")
+      .get()
+      .then((querySnapshot) => {
+        this.store.users = [];
+        querySnapshot.forEach((doc) => {
+          const userData = doc.data();
+          const userNickname = userData.nickname;
+          this.store.users.push(userNickname);
+        });
+      })
+      .catch((error) => {
+        console.error("Error getting user nicknames:", error);
+      });
     this.getPostsAndAnswers();
   },
   methods: {
@@ -347,6 +339,9 @@ export default {
       } else {
         console.error("User not authenticated.");
       }
+    },
+    openUserCard(user) {
+      this.$router.push({ name: "UserCard", params: { userNickname: user.userNickname } });
     },
   },
   computed: {

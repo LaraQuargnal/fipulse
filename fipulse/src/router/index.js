@@ -49,6 +49,14 @@ const routes = [
     },
   },
   {
+    path: "/user-card/:userId",
+    name: "UserCard",
+    component: UserCard,
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
     path: "/studentcorner",
     name: "studentcorner",
     component: StudentCorner,
