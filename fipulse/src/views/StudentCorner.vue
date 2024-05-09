@@ -2,24 +2,7 @@ StudentCorner.vue:
 <template>
   <div class="studentcorner">
     <div class="row">
-      <div class="col-3">
-        <button
-          id="normalButton"
-          class="btn btn-primary"
-          @click="showDarknetPosts = false"
-          style="margin-top: 25px; width: 100%"
-        >
-          Normal
-        </button>
-        <button
-          id="darknetButton"
-          class="btn btn-primary"
-          @click="showDarknetPosts = true"
-          style="margin-top: 50px; width: 100%"
-        >
-          Darknet
-        </button>
-      </div>
+      <div class="col-3"></div>
       <div class="col-6">
         <form @submit.prevent="postNewForum">
           <div class="form-group">
@@ -52,7 +35,20 @@ StudentCorner.vue:
           "
         >
           <div style="display: flex; justify-content: space-between">
-            <div style="font-weight: bold">{{ post.userDisplayName }}</div>
+            <div style="font-weight: bold">
+              <img
+                v-if="post.profileImage"
+                :src="post.profileImage"
+                alt="Profile Picture"
+                style="
+                  width: 30px;
+                  height: 30px;
+                  border-radius: 50%;
+                  margin-right: 5px;
+                "
+              />
+              <span>{{ post.userDisplayName }}</span>
+            </div>
             <div>{{ postedFromNow(post) }}</div>
           </div>
           <div style="padding: 10px; margin-top: 10px">
@@ -64,7 +60,22 @@ StudentCorner.vue:
               :key="answer.id"
               style="border: 1px solid #cccccc; padding: 5px"
             >
-              <p>{{ answer.answer }} ({{ answer.userDisplayName }})</p>
+              <div style="display: flex; align-items: center">
+                <img
+                  v-if="answer.userProfileImage"
+                  :src="answer.userProfileImage"
+                  alt="Profile Picture"
+                  style="
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 50%;
+                    margin-right: 5px;
+                  "
+                />
+                <p>
+                  <b>{{ answer.userDisplayName }}:</b> {{ answer.answer }}
+                </p>
+              </div>
             </div>
           </div>
           <form @submit.prevent="submitAnswer(post)" style="margin-top: 10px">
@@ -117,12 +128,32 @@ StudentCorner.vue:
                     list-style-type: none;
                   "
                 >
-                  <li v-for="user in store.users" :key="user">
-                    <a
-                      href="#"
-                      @click="openUserCard(user)"
-                      style="color: #007bff; font-weight: normal"
-                      ><b>{{ user }}</b></a
+                  <li
+                    v-for="user in store.users"
+                    :key="user"
+                    @click="openUserCard(user)"
+                  >
+                    <router-link
+                      :to="{
+                        name: 'UserCardWithNickname',
+                        params: { nickname: user },
+                      }"
+                      ><div style="display: flex; align-items: center">
+                        <img
+                          v-if="getUserProfileImage(user)"
+                          :src="getUserProfileImage(user)"
+                          alt="Profile Picture"
+                          style="
+                            width: 30px;
+                            height: 30px;
+                            border-radius: 50%;
+                            margin-right: 5px;
+                          "
+                        />
+                        <a href="#" style="color: #007bff; font-weight: normal"
+                          ><b>{{ user }}</b></a
+                        >
+                      </div></router-link
                     >
                   </li>
                 </ul>
@@ -149,7 +180,6 @@ export default {
       question: "",
       forum: [],
       store: store,
-      answer: [],
     };
   },
   mounted() {
@@ -171,6 +201,12 @@ export default {
     this.getPostsAndAnswers();
   },
   methods: {
+    openUserCard(user) {
+      this.$router.push({
+        name: "UserCardWithNickname",
+        params: { nickname: user },
+      });
+    },
     getPostsAndAnswers() {
       db.collection("forum")
         .orderBy("posted_at", "desc")
@@ -180,29 +216,32 @@ export default {
           this.forum = [];
           querySnapshot.forEach((doc) => {
             const data = doc.data();
+            const userEmail = data.email;
             let userDisplayName = data.userDisplayName || data.email;
             const answer = data.answer || "";
+            const question = data.que;
+            const postedAt = data.posted_at;
 
-            const userId = firebase.auth().currentUser.uid;
             db.collection("users")
-              .doc(userId)
+              .where("email", "==", userEmail)
               .get()
-              .then((userDoc) => {
-                if (userDoc.exists) {
+              .then((userQuerySnapshot) => {
+                userQuerySnapshot.forEach((userDoc) => {
                   const userData = userDoc.data();
                   userDisplayName = userData.nickname;
-                }
+                  const userProfileImage = userData.profileImage;
 
-                const post = {
-                  id: doc.id,
-                  user: data.email,
-                  userDisplayName: userDisplayName,
-                  date: data.posted_at,
-                  que: data.que,
-                  answer: answer,
-                };
-                this.forum.push(post);
-                this.getAnswers(post.id);
+                  const post = {
+                    id: doc.id,
+                    userDisplayName: userDisplayName,
+                    date: postedAt,
+                    que: question,
+                    profileImage: userProfileImage,
+                    answer: answer,
+                  };
+                  this.forum.push(post);
+                  this.getAnswers(post.id);
+                });
               })
               .catch((error) => {
                 console.error("Error getting user data:", error);
@@ -211,31 +250,6 @@ export default {
         })
         .catch((error) => {
           console.error("Error getting posts:", error);
-        });
-    },
-    getPosts() {
-      db.collection("forum")
-        .orderBy("posted_at", "desc")
-        .limit(50)
-        .get()
-        .then((query) => {
-          if (this.forum.length === 0) {
-            this.forum = [];
-          }
-          query.forEach((doc) => {
-            const data = doc.data();
-            const userDisplayName = data.userDisplayName || data.email;
-            const answer = data.answer || "";
-
-            this.forum.push({
-              id: doc.id,
-              user: data.email,
-              userDisplayName: userDisplayName,
-              date: data.posted_at,
-              que: data.que,
-              answer: answer,
-            });
-          });
         });
     },
     postNewForum() {
@@ -252,7 +266,7 @@ export default {
               que: question,
               email: store.currentUser,
               posted_at: Date.now(),
-              userDisplayName: this.currentUserNickname,
+              nickname: this.currentUserNickname,
             })
             .then((doc) => {
               console.log("Spremljeno", doc);
@@ -284,6 +298,7 @@ export default {
               answer: data.answer,
             });
           });
+
           const postIndex = this.forum.findIndex((post) => post.id === postId);
           if (postIndex !== -1) {
             this.forum[postIndex].answers = answers;
@@ -299,11 +314,9 @@ export default {
       }
       const postIdValue = post.id;
       const answer = post.answer;
-
       const currentUser = firebase.auth().currentUser;
 
       if (currentUser) {
-        const userNickname = currentUser.displayName;
         const userId = currentUser.uid;
         db.collection("users")
           .doc(userId)
@@ -340,8 +353,12 @@ export default {
         console.error("User not authenticated.");
       }
     },
-    openUserCard(user) {
-      this.$router.push({ name: "UserCard", params: { userNickname: user.userNickname } });
+    getUserProfileImage(userOrPost) {
+      if (userOrPost && userOrPost.profileImage) {
+        return userOrPost.profileImage;
+      } else {
+        return require("@/assets/userpicture.png");
+      }
     },
   },
   computed: {
@@ -353,11 +370,6 @@ export default {
 </script>
 
 <style scoped>
-.answers {
-  max-height: 50px;
-  overflow-y: auto;
-}
-
 .box-title {
   background-color: #000;
   color: #fff;
@@ -365,25 +377,5 @@ export default {
   margin-bottom: 5px;
   text-align: center;
   width: 230px;
-}
-
-.menu-button {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 230px;
-  height: 40px;
-  text-align: left;
-  padding-left: 20px;
-  border: 1px solid #808080;
-}
-
-.button-text {
-  flex: 1;
-}
-
-.button-sign {
-  margin-right: 10px;
-  padding-right: 10px;
 }
 </style>

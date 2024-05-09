@@ -1,6 +1,10 @@
 <template>
   <nav>
-    <nav class="navbar bg-body-tertiary" style="margin-bottom: 20px">
+    <nav
+      v-if="!showSplash"
+      class="navbar bg-body-tertiary"
+      style="margin-bottom: 20px"
+    >
       <div class="container-fluid">
         <img
           src="@/assets/logo.png"
@@ -11,31 +15,24 @@
         <router-link v-if="isVisible" to="/home">{{
           $t("navBarHome")
         }}</router-link>
-        |
         <router-link v-if="isVisible" to="/posts">{{
           $t("navBarPosts")
         }}</router-link>
-        |
         <router-link v-if="!isVisible" to="/login">{{
           $t("navBarLogin")
         }}</router-link>
-        |
         <router-link v-if="!isVisible" to="/signup">{{
           $t("navBarSignup")
         }}</router-link>
-        |
         <router-link v-if="isVisible" to="/usercard">{{
           $t("navBarUserCard")
         }}</router-link>
-        |
         <router-link v-if="isVisible" to="/studentcorner">{{
           $t("navBarStudentCorner")
         }}</router-link>
-        |
         <router-link v-if="isVisible" to="/logout" @click.prevent="logout()">{{
           $t("navBarLogOut")
         }}</router-link>
-        |
         <div class="dropdown">
           <button
             class="btn btn-link dropdown-toggle custom-dropdown-toggle"
@@ -60,7 +57,7 @@
         </div>
       </div>
     </nav>
-    <SplashScreen v-if="showSplash" />
+    <SplashScreen v-if="showSplash" @splashFinished="splashFinished" />
     <router-view v-else />
   </nav>
 </template>
@@ -88,6 +85,7 @@ export default {
   },
   data() {
     return {
+      showSplash: !sessionStorage.getItem("splashShown"),
       languages: [
         { language: "en", title: "English" },
         { language: "hr", title: "Hrvatski" },
@@ -105,6 +103,10 @@ export default {
     },
     changeLocale(locale) {
       i18n.global.locale = locale;
+    },
+    splashFinished() {
+      this.showSplash = false;
+      sessionStorage.setItem("splashShown", true);
     },
   },
   computed: {

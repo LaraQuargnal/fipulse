@@ -117,17 +117,6 @@ export default {
                   .updateProfile({
                     darknetAccess: true,
                   })
-                  .then(() => {
-                    console.log(
-                      "Pristup Darknetu dodijeljen korisniku s emailom teaa15@gmail.com."
-                    );
-                  })
-                  .catch((error) => {
-                    console.error(
-                      "Greška pri postavljanju pristupa Darknetu:",
-                      error
-                    );
-                  });
               }
               firebase
                 .firestore()

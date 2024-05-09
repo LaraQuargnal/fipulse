@@ -6,7 +6,6 @@ import SignUp from "../views/Signup.vue";
 import Posts from "../views/Posts.vue";
 import UserCard from "../views/UserCard.vue";
 import StudentCorner from "../views/StudentCorner.vue";
-import store from "@/store";
 
 const routes = [
   {
@@ -41,17 +40,10 @@ const routes = [
     },
   },
   {
-    path: "/usercard",
-    name: "usercard",
+    path: "/usercard/:nickname?",
+    name: "UserCardWithNickname",
     component: UserCard,
-    meta: {
-      requiresAuth: true,
-    },
-  },
-  {
-    path: "/user-card/:userId",
-    name: "UserCard",
-    component: UserCard,
+    props: true,
     meta: {
       requiresAuth: true,
     },
