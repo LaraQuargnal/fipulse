@@ -23,7 +23,7 @@
           </div>
           <div class="text-center mt-3">
             <button
-              v-if="showButtons"
+              v-if="!showButtons && showButton"
               class="btn btn-primary"
               @click="openFileInput"
             >
@@ -61,14 +61,14 @@
           </div>
           <div class="text-left mt-4">
             <button
-              v-if="showButtons"
+              v-if="!showButtons && showButton"
               class="btn btn-primary"
               @click="toggleEditMode"
             >
               {{ $t("NickChange") }}
             </button>
             <button
-              v-if="editNickname && showButtons"
+              v-if="editNickname && showButton"
               class="btn btn-success"
               @click="saveChanges"
             >
@@ -76,9 +76,7 @@
             </button>
           </div>
           <div class="text-left mt-3">
-            <button v-if="!showButtons" class="btn btn-primary">
-              CHAT
-            </button>
+            <button v-if="!showButtons" class="btn btn-primary">CHAT</button>
             <button v-if="showButtons" class="btn btn-danger me-2">
               DEAKTIVIRANJE KORISNIKA
             </button>
@@ -117,10 +115,16 @@ export default {
     },
   },
   created() {
-    if (this.$route.path === "/usercard") {
+    const adminEmail = "admin@admin.com";
+    if (firebase.auth().currentUser.email === adminEmail) {
       this.showButtons = true;
+      this.showButton = true;
+    }
+
+    if (this.$route.path === "/usercard") {
+      this.showButton = true;
     } else {
-      this.showButtons = false;
+      this.showButton = false;
     }
 
     const nickname = this.$route.params.nickname;
