@@ -4,12 +4,12 @@ import "firebase/compat/firestore";
 import "firebase/compat/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyA9Q9fmTz7saYuEeVzxQydhR6o8cp002Kw",
-  authDomain: "fipulse.firebaseapp.com",
-  projectId: "fipulse",
-  storageBucket: "fipulse.appspot.com",
-  messagingSenderId: "332641683387",
-  appId: "1:332641683387:web:227d595a3cc6be71d8e69e",
+  apiKey: "AIzaSyBfQPWZoSygyePmshM_J43DJUupOcgvuaw",
+  authDomain: "fipulse-63362.firebaseapp.com",
+  projectId: "fipulse-63362",
+  storageBucket: "fipulse-63362.appspot.com",
+  messagingSenderId: "127108540720",
+  appId: "1:127108540720:web:6ad3ecae76bfa6d382c0f5",
 };
 
 const app = firebase.initializeApp(firebaseConfig);

@@ -47,6 +47,17 @@ StudentCorner.vue:
                   margin-right: 5px;
                 "
               />
+              <img
+                v-else
+                :src="require('@/assets/userpicture.png')"
+                alt="Default Profile Picture"
+                style="
+                  width: 30px;
+                  height: 30px;
+                  border-radius: 50%;
+                  margin-right: 5px;
+                "
+              />
               <span>{{ post.userDisplayName }}</span>
             </div>
             <div>{{ postedFromNow(post) }}</div>
@@ -60,11 +71,22 @@ StudentCorner.vue:
               :key="answer.id"
               style="border: 1px solid #cccccc; padding: 5px"
             >
-              <div style="display: flex; align-items: center">
+              <div style="display: flex">
                 <img
                   v-if="answer.userProfileImage"
                   :src="answer.userProfileImage"
                   alt="Profile Picture"
+                  style="
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 50%;
+                    margin-right: 5px;
+                  "
+                />
+                <img
+                  v-else
+                  :src="require('@/assets/userpicture.png')"
+                  alt="Default Profile Picture"
                   style="
                     width: 30px;
                     height: 30px;
@@ -121,13 +143,7 @@ StudentCorner.vue:
             <li class="list-group-item" style="border: none">
               <div class="box-title" style="width: 100%">{{ $t("users") }}</div>
               <div class="list-group-item-content">
-                <ul
-                  style="
-                    padding-left: 10px;
-                    text-align: center;
-                    list-style-type: none;
-                  "
-                >
+                <ul style="padding-left: 35%; list-style-type: none">
                   <li
                     v-for="user in store.users"
                     :key="user"
@@ -136,12 +152,12 @@ StudentCorner.vue:
                     <router-link
                       :to="{
                         name: 'UserCardWithNickname',
-                        params: { nickname: user },
+                        params: { nickname: user.nickname },
                       }"
                       ><div style="display: flex; align-items: center">
                         <img
-                          v-if="getUserProfileImage(user)"
-                          :src="getUserProfileImage(user)"
+                          v-if="user.profileImage"
+                          :src="user.profileImage"
                           alt="Profile Picture"
                           style="
                             width: 30px;
@@ -150,8 +166,19 @@ StudentCorner.vue:
                             margin-right: 5px;
                           "
                         />
+                        <img
+                          v-else
+                          :src="require('@/assets/userpicture.png')"
+                          alt="Default Profile Picture"
+                          style="
+                            width: 30px;
+                            height: 30px;
+                            border-radius: 50%;
+                            margin-right: 5px;
+                          "
+                        />
                         <a href="#" style="color: #007bff; font-weight: normal"
-                          ><b>{{ user }}</b></a
+                          ><b>{{ user.nickname }}</b></a
                         >
                       </div></router-link
                     >
@@ -191,20 +218,24 @@ export default {
         this.store.users = [];
         querySnapshot.forEach((doc) => {
           const userData = doc.data();
-          const userNickname = userData.nickname;
-          this.store.users.push(userNickname);
+          const user = {
+            nickname: userData.nickname,
+            profileImage: userData.profileImage,
+          };
+          this.store.users.push(user);
         });
       })
       .catch((error) => {
-        console.error("Error getting user nicknames:", error);
+        console.error("Error getting user data:", error);
       });
     this.getPostsAndAnswers();
   },
+
   methods: {
     openUserCard(user) {
       this.$router.push({
         name: "UserCardWithNickname",
-        params: { nickname: user },
+        params: { nickname: user.nickname },
       });
     },
     getPostsAndAnswers() {
@@ -286,23 +317,51 @@ export default {
         .orderBy("posted_at", "asc")
         .get()
         .then((querySnapshot) => {
+          const promises = [];
           const answers = [];
           querySnapshot.forEach((doc) => {
             const data = doc.data();
-            let userNickname = data.userNickname || data.email;
-            answers.push({
-              id: doc.id,
-              user: data.email,
-              userDisplayName: userNickname,
-              date: data.posted_at,
-              answer: data.answer,
-            });
+            let userNickname = data.userDisplayName || data.email;
+
+            const promise = db
+              .collection("users")
+              .where("email", "==", data.email)
+              .get()
+              .then((userQuerySnapshot) => {
+                userQuerySnapshot.forEach((userDoc) => {
+                  const userData = userDoc.data();
+                  userNickname = userData.nickname;
+                  const userProfileImage = userData.profileImage;
+
+                  answers.push({
+                    id: doc.id,
+                    user: data.email,
+                    userDisplayName: userNickname,
+                    date: data.posted_at,
+                    answer: data.answer,
+                    userProfileImage: userProfileImage,
+                  });
+                });
+              })
+              .catch((error) => {
+                console.error("Error getting user data:", error);
+              });
+
+            promises.push(promise);
           });
 
-          const postIndex = this.forum.findIndex((post) => post.id === postId);
-          if (postIndex !== -1) {
-            this.forum[postIndex].answers = answers;
-          }
+          Promise.all(promises)
+            .then(() => {
+              const postIndex = this.forum.findIndex(
+                (post) => post.id === postId
+              );
+              if (postIndex !== -1) {
+                this.forum[postIndex].answers = answers;
+              }
+            })
+            .catch((error) => {
+              console.error("Error getting answers:", error);
+            });
         })
         .catch((error) => {
           console.error("Error getting answers:", error);
@@ -351,13 +410,6 @@ export default {
           });
       } else {
         console.error("User not authenticated.");
-      }
-    },
-    getUserProfileImage(userOrPost) {
-      if (userOrPost && userOrPost.profileImage) {
-        return userOrPost.profileImage;
-      } else {
-        return require("@/assets/userpicture.png");
       }
     },
   },
