@@ -31,7 +31,7 @@ const messages = {
     secondGraduate: "2. graduate",
     browseCategories: "BROWSE CATEGORIES",
     users: "USERS",
-    addPost: "ADD POST",
+    addPost: "CREATE POST",
     addForum: "ADD POST",
     ForumQue: "What's on your mind?",
     ForumHelp: "Enter post or question",

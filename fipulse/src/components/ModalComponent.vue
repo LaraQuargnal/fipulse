@@ -15,14 +15,22 @@
               />
             </div>
             <div class="form-group">
-              <label for="subjectInput">Subject:</label>
-              <input
-                type="text"
+              <label for="subjectSelect">Subject:</label>
+              <select
                 class="form-control"
-                id="subjectInput"
+                id="subjectSelect"
                 v-model="newPost.subject"
                 required
-              />
+              >
+                <option value="" disabled>Select Subject</option>
+                <option
+                  v-for="subject in subjects"
+                  :key="subject.id"
+                  :value="subject.name"
+                >
+                  {{ subject.name }}
+                </option>
+              </select>
             </div>
             <div class="form-group">
               <label for="commentInput">Comment:</label>
@@ -78,6 +86,8 @@ export default {
       attachment: null,
     });
 
+    const subjects = ref([]);
+
     const handleFileUpload = (event) => {
       console.log("File uploaded", event.target.files[0]);
     };
@@ -118,9 +128,22 @@ export default {
 
     onMounted(() => {
       onClickOutside(target, () => emit("modal-close"));
+      db.collection("subjects")
+        .get()
+        .then((querySnapshot) => {
+          const subjectsArray = [];
+          querySnapshot.forEach((doc) => {
+            const subject = doc.data();
+            subjectsArray.push({ id: doc.id, name: subject.name });
+          });
+          subjects.value = subjectsArray;
+        })
+        .catch((error) => {
+          console.log("Error fetching subjects: ", error);
+        });
     });
 
-    return { newPost, handleFileUpload, createNewPost, target };
+    return { newPost, subjects, handleFileUpload, createNewPost, target };
   },
 };
 </script>
