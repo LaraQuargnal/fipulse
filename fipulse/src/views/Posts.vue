@@ -3,112 +3,38 @@
     <div class="row">
       <div class="col-2">
         <div class="box-title">{{ $t("browseCategories") }}</div>
-        <div class="dropdown" :class="{ open: isOpen && activeDropdown === 1 }">
+        <div
+          v-for="(dropdown, index) in dropdowns"
+          :key="index"
+          class="dropdown"
+          :class="{ open: isOpen && activeDropdown === index }"
+        >
           <button
-            ref="menuButton1"
+            :ref="'menuButton' + index"
             class="menu-button"
-            @click="toggleDropdown(1)"
+            @click="toggleDropdown(index)"
           >
-            <span class="button-text">{{ $t("firstUndergraduate") }}</span>
+            <span class="button-text">{{ dropdown.label }}</span>
             <span class="button-sign">{{
-              activeDropdown === 1 && isOpen ? "▲" : "▼"
+              activeDropdown === index && isOpen ? "▲" : "▼"
             }}</span>
           </button>
           <div
             class="dropdown-content"
-            v-show="isOpen && activeDropdown === 1"
-            :style="{ width: dropdownWidth + 'px' }"
+            v-show="isOpen && activeDropdown === index"
           >
-            <button @click="selectMenuItem('Subject1')">Subject1</button>
-            <button @click="selectMenuItem('Subjet2')">Subject2</button>
-            <button @click="selectMenuItem('Subject3')">Subject3</button>
-          </div>
-        </div>
-        <div class="dropdown" :class="{ open: isOpen && activeDropdown === 2 }">
-          <button
-            ref="menuButton2"
-            class="menu-button"
-            @click="toggleDropdown(2)"
-          >
-            <span class="button-text">{{ $t("secondUndergraduate") }}</span>
-            <span class="button-sign">{{
-              activeDropdown === 2 && isOpen ? "▲" : "▼"
-            }}</span>
-          </button>
-          <div
-            class="dropdown-content"
-            v-show="isOpen && activeDropdown === 2"
-            :style="{ width: dropdownWidth + 'px' }"
-          >
-            <button @click="selectMenuItem('Subject4')">Subject4</button>
-            <button @click="selectMenuItem('Subjet5')">Subject5</button>
-            <button @click="selectMenuItem('Subject6')">Subject6</button>
-          </div>
-        </div>
-        <div class="dropdown" :class="{ open: isOpen && activeDropdown === 3 }">
-          <button
-            ref="menuButton3"
-            class="menu-button"
-            @click="toggleDropdown(3)"
-          >
-            <span class="button-text">{{ $t("thirdUndergraduate") }}</span>
-            <span class="button-sign">{{
-              activeDropdown === 3 && isOpen ? "▲" : "▼"
-            }}</span>
-          </button>
-          <div
-            class="dropdown-content"
-            v-show="isOpen && activeDropdown === 3"
-            :style="{ width: dropdownWidth + 'px' }"
-          >
-            <button @click="selectMenuItem('Subject4')">Subject4</button>
-            <button @click="selectMenuItem('Subjet5')">Subject5</button>
-            <button @click="selectMenuItem('Subject6')">Subject6</button>
-          </div>
-        </div>
-        <div class="dropdown" :class="{ open: isOpen && activeDropdown === 4 }">
-          <button
-            ref="menuButton4"
-            class="menu-button"
-            @click="toggleDropdown(4)"
-          >
-            <span class="button-text">{{ $t("firstGraduate") }}</span>
-            <span class="button-sign">{{
-              activeDropdown === 4 && isOpen ? "▲" : "▼"
-            }}</span>
-          </button>
-          <div
-            class="dropdown-content"
-            v-show="isOpen && activeDropdown === 4"
-            :style="{ width: dropdownWidth + 'px' }"
-          >
-            <button @click="selectMenuItem('Subject4')">Subject4</button>
-            <button @click="selectMenuItem('Subjet5')">Subject5</button>
-            <button @click="selectMenuItem('Subject6')">Subject6</button>
-          </div>
-        </div>
-        <div class="dropdown" :class="{ open: isOpen && activeDropdown === 5 }">
-          <button
-            ref="menuButton5"
-            class="menu-button"
-            @click="toggleDropdown(5)"
-          >
-            <span class="button-text">{{ $t("secondGraduate") }}</span>
-            <span class="button-sign">{{
-              activeDropdown === 5 && isOpen ? "▲" : "▼"
-            }}</span>
-          </button>
-          <div
-            class="dropdown-content"
-            v-show="isOpen && activeDropdown === 5"
-            :style="{ width: dropdownWidth + 'px' }"
-          >
-            <button @click="selectMenuItem('Subject4')">Subject4</button>
-            <button @click="selectMenuItem('Subjet5')">Subject5</button>
-            <button @click="selectMenuItem('Subject6')">Subject6</button>
+            <button
+              style="width: 100%"
+              v-for="(item, itemIndex) in dropdown.items"
+              :key="itemIndex"
+              @click="selectMenuItem(item)"
+            >
+              {{ item }}
+            </button>
           </div>
         </div>
       </div>
+
       <div class="col-7" style="text-align: center">
         <button
           type="submit"
@@ -126,7 +52,9 @@
           :getPosts="getPosts"
         >
         </ModalComponent>
-        <div class="box-title" style="margin-top: 30px">RECENT POSTS</div>
+        <div class="box-title" style="margin-top: 30px">
+          {{ $t("postsRecentPosts") }}
+        </div>
         <PostsCard :cards="filteredCards" :key="cards.id" />
       </div>
       <div class="col-3" style="padding-left: 50px">
@@ -222,16 +150,20 @@ export default {
   data() {
     return {
       cards: [],
+      dropdowns: [],
       isOpen: false,
       isModalOpened: isModalOpened,
       submitHandler: submitHandler,
       activeDropdown: null,
       dropdownWidth: 0,
       store: store,
+      subjects: [],
+      dropdowns: [],
     };
   },
   mounted() {
     this.getPosts();
+    this.getSubjects();
   },
   computed: {
     filteredCards() {
@@ -256,6 +188,46 @@ export default {
     closeModal() {
       this.isModalOpened = false;
     },
+    getSubjects() {
+      db.collection("subjects")
+        .get()
+        .then((querySnapshot) => {
+          const undergradDropdowns = [];
+          const gradDropdowns = [];
+          querySnapshot.forEach((doc) => {
+            const label = doc.data().label;
+            const name = doc.data().name;
+            if (label.includes("Undergraduate")) {
+              this.addSubjectsToDropdown(undergradDropdowns, label, name);
+            } else if (label.includes("Graduate")) {
+              this.addSubjectsToDropdown(gradDropdowns, label, name);
+            }
+          });
+          this.sortAndConcatDropdowns(undergradDropdowns, gradDropdowns);
+        })
+        .catch((error) => {
+          console.log("Error getting subjects: ", error);
+        });
+    },
+    addSubjectsToDropdown(dropdowns, label, name) {
+      let dropdownIndex = dropdowns.findIndex(
+        (dropdown) => dropdown.label === label
+      );
+      if (dropdownIndex === -1) {
+        dropdownIndex = dropdowns.length;
+        dropdowns.push({
+          label: label,
+          items: [],
+        });
+      }
+      dropdowns[dropdownIndex].items.push(name);
+    },
+    sortAndConcatDropdowns(undergradDropdowns, gradDropdowns) {
+      undergradDropdowns.sort((a, b) => a.label.localeCompare(b.label));
+      gradDropdowns.sort((a, b) => a.label.localeCompare(b.label));
+      this.dropdowns = [...undergradDropdowns, ...gradDropdowns];
+    },
+
     getPosts() {
       db.collection("posts")
         .orderBy("postead_at", "desc")
@@ -333,6 +305,7 @@ export default {
   box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
   z-index: 1;
   margin-top: 5px;
+  width: 100%;
 }
 
 .open .dropdown-content {
@@ -340,12 +313,12 @@ export default {
 }
 
 .dropdown-content button {
-  width: 100%;
   text-align: left;
   padding: 12px 16px;
   border: none;
   background-color: transparent;
   cursor: pointer;
+  width: 100%;
 }
 
 .dropdown-content button:hover {
