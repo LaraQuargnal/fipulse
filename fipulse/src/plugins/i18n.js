@@ -45,7 +45,7 @@ const messages = {
     Grade: "Grade:",
     NickChange: "Change nickname",
     Save: "Save",
-    postsRecentPosts: "RECENT POSTS"
+    postsAllPosts: "ALL POSTS"
   },
   hr: {
     navBarHome: "Početna",
@@ -91,7 +91,7 @@ const messages = {
     Grade: "Ocjena:",
     NickChange: "Izmijeni nadimak",
     Save: "Spremi",
-    postsRecentPosts: "NAJNOVIJE OBJAVE"
+    postsAllPosts: "SVE OBJAVE"
   },
 };
 

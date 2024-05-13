@@ -52,9 +52,9 @@
           :getPosts="getPosts"
         >
         </ModalComponent>
-        <div class="box-title" style="margin-top: 30px">
-          {{ $t("postsRecentPosts") }}
-        </div>
+        <button class="box-title" style="margin-top: 30px" @click="clearFilter">
+          {{ $t("postsAllPosts") }}
+        </button>
         <PostsCard :cards="filteredCards" :key="cards.id" />
       </div>
       <div class="col-3" style="padding-left: 50px">
@@ -268,7 +268,10 @@ export default {
     },
     selectMenuItem(item) {
       console.log(`Selected menu item: ${item}`);
-      // TODO: cekamo bazu da dodamo na klik na item
+      this.store.searchTerm = item;
+    },
+    clearFilter() {
+      this.store.searchTerm = "";
     },
   },
 };
