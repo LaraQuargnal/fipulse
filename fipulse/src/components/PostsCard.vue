@@ -12,8 +12,10 @@
       <h3 class="post-title">{{ card.subject }}</h3>
       <h5 class="post-comment">{{ card.title }}</h5>
       <p class="post-comment">{{ card.comment }}</p>
-      <div class="attachment">
-        <a :href="card.attachment">{{ card.attachment }}</a>
+      <div class="attachment" v-if="card.attachment">
+        <a :href="card.attachment" target="_blank">{{
+          getAttachmentName(card.attachment)
+        }}</a>
       </div>
     </div>
   </div>
@@ -21,6 +23,7 @@
 
 <script>
 import moment from "moment";
+import { storage } from "@/firebase";
 
 export default {
   name: "PostsCard",
@@ -33,6 +36,15 @@ export default {
   methods: {
     formatDate(date) {
       return moment(date).fromNow();
+    },
+    getAttachmentName(attachment) {
+      const fileName = attachment
+        .split("/")
+        .pop()
+        .split("?")[0]
+        .split("%2F")
+        .pop();
+      return decodeURIComponent(fileName);
     },
   },
 };

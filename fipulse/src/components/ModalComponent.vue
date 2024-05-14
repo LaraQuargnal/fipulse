@@ -51,10 +51,15 @@
                 required
               />
             </div>
+            <div v-if="uploading">
+              <progress :value="progress" max="100"></progress>
+              <span>{{ progress }}</span>
+            </div>
             <button
               type="submit"
               class="btn btn-primary"
               style="margin-top: 20px; width: 150px"
+              :disabled="uploading"
             >
               Submit
             </button>
@@ -67,7 +72,7 @@
 
 
 <script>
-import { db } from "@/firebase";
+import { db, storage } from "@/firebase";
 import { ref, onMounted } from "vue";
 import store from "@/store";
 import { onClickOutside } from "@vueuse/core";
@@ -87,9 +92,41 @@ export default {
     });
 
     const subjects = ref([]);
+    const progress = ref(0);
+    const uploading = ref(false);
 
-    const handleFileUpload = (event) => {
-      console.log("File uploaded", event.target.files[0]);
+    const handleFileUpload = async (event) => {
+      const file = event.target.files[0];
+      const storageRef = storage.ref();
+      const fileRef = storageRef.child(
+        `attachments/` + store.currentUser + `/` + `${file.name}`
+      );
+
+      try {
+        uploading.value = true;
+        const uploadTask = fileRef.put(file);
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            progress.value =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          },
+          (error) => {
+            console.error("Error uploading file: ", error);
+            uploading.value = false;
+          },
+          () => {
+            uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+              newPost.value.attachment = downloadURL;
+              console.log("File uploaded", downloadURL);
+              uploading.value = false;
+            });
+          }
+        );
+      } catch (error) {
+        console.error("Error uploading file: ", error);
+        uploading.value = false;
+      }
     };
 
     const createNewPost = () => {
@@ -136,6 +173,7 @@ export default {
             const subject = doc.data();
             subjectsArray.push({ id: doc.id, name: subject.name });
           });
+          subjectsArray.sort((a, b) => a.name.localeCompare(b.name));
           subjects.value = subjectsArray;
         })
         .catch((error) => {
@@ -143,7 +181,16 @@ export default {
         });
     });
 
-    return { newPost, subjects, handleFileUpload, createNewPost, target };
+    return {
+      newPost,
+      uploading,
+      subjects,
+      handleFileUpload,
+      createNewPost,
+      target,
+      handleFileUpload,
+      progress,
+    };
   },
 };
 </script>
