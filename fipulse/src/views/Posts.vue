@@ -134,6 +134,7 @@
 <script>
 import PostsCard from "@/components/PostsCard.vue";
 import store from "@/store";
+import { firebase } from "@/firebase";
 import { db } from "@/firebase";
 import { ref } from "vue";
 import ModalComponent from "@/components/ModalComponent.vue";
@@ -163,6 +164,24 @@ export default {
     };
   },
   mounted() {
+    firebase
+      .firestore()
+      .collection("users")
+      .get()
+      .then((querySnapshot) => {
+        this.store.users = [];
+        querySnapshot.forEach((doc) => {
+          const userData = doc.data();
+          const user = {
+            nickname: userData.nickname,
+            profileImage: userData.profileImage,
+          };
+          this.store.users.push(user);
+        });
+      })
+      .catch((error) => {
+        console.error("Error getting user data:", error);
+      });
     this.getPosts();
     this.getSubjects();
   },

@@ -45,7 +45,10 @@ const messages = {
     Grade: "Grade:",
     NickChange: "Change nickname",
     Save: "Save",
-    postsAllPosts: "ALL POSTS"
+    postsAllPosts: "ALL POSTS",
+    deactivateUser: "DEACTIVATE USER",
+    DarknetAccess: "DARKNET ACCESS",
+    DarknetRevoke: "DARKNET REVOKE"
   },
   hr: {
     navBarHome: "Početna",
@@ -91,7 +94,10 @@ const messages = {
     Grade: "Ocjena:",
     NickChange: "Izmijeni nadimak",
     Save: "Spremi",
-    postsAllPosts: "SVE OBJAVE"
+    postsAllPosts: "SVE OBJAVE",
+    deactivateUser: "DEAKTIVIRANJE KORISNIKA",
+    DarknetAccess: "PRISTUP 'DARKNET'-U",
+    DarknetRevoke: "ZABRANA 'DARKNET'-A"
   },
 };
 

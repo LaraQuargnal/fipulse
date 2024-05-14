@@ -56,7 +56,7 @@
           <div class="user-info-row mt-3">
             <label>{{ $t("Darknet") }}</label>
             <span>{{
-              currentUser ? (currentUser.darknetAccess ? "Da" : "Ne") : ""
+              currentUser ? (currentUser.darknetAccess ? "Yes" : "No") : ""
             }}</span>
           </div>
           <div class="text-left mt-4">
@@ -77,11 +77,26 @@
           </div>
           <div class="text-left mt-3">
             <button v-if="!showButtons" class="btn btn-primary">CHAT</button>
-            <button v-if="showButtons" class="btn btn-danger me-2">
-              DEAKTIVIRANJE KORISNIKA
+            <button
+              v-if="showButtons"
+              @click="deleteUser"
+              class="btn btn-danger me-2"
+            >
+              {{ $t("deactivateUser") }}
             </button>
-            <button v-if="showButtons" class="btn btn-success">
-              PRISTUP "DARKNET"-U
+            <button
+              v-if="showButtons"
+              class="btn btn-success me-2"
+              @click="grantDarknetAccess"
+            >
+              {{ $t("DarknetAccess") }}
+            </button>
+            <button
+              v-if="showButtons"
+              class="btn btn-danger me-2"
+              @click="revokeDarknetAccess"
+            >
+              {{ $t("DarknetRevoke") }}
             </button>
           </div>
         </div>
@@ -115,11 +130,13 @@ export default {
     },
   },
   created() {
-    const adminEmail = "admin@admin.com";
-    if (firebase.auth().currentUser.email === adminEmail) {
-      this.showButtons = true;
-      this.showButton = true;
-    }
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        this.checkAdmin(user.email);
+      } else {
+        this.$router.push("/login");
+      }
+    });
 
     if (this.$route.path === "/usercard") {
       this.showButton = true;
@@ -140,6 +157,13 @@ export default {
     },
   },
   methods: {
+    checkAdmin(email) {
+      const adminEmail = "admin@admin.com";
+      if (email === adminEmail) {
+        this.showButtons = true;
+        this.showButton = true;
+      }
+    },
     fetchUserData() {
       firebase.auth().onAuthStateChanged((user) => {
         if (user) {
@@ -237,6 +261,118 @@ export default {
           });
         }
       );
+    },
+    grantDarknetAccess() {
+      const nickname = this.$route.params.nickname;
+      if (this.isAdmin() && nickname) {
+        db.collection("users")
+          .where("nickname", "==", nickname)
+          .get()
+          .then((querySnapshot) => {
+            if (!querySnapshot.empty) {
+              const userId = querySnapshot.docs[0].id;
+              const userRef = db.collection("users").doc(userId);
+              userRef
+                .update({
+                  darknetAccess: true,
+                })
+                .then(() => {
+                  console.log(
+                    `Pristup Darknet-u omogućen korisniku ${nickname}.`
+                  );
+                  this.$router.go();
+                })
+                .catch((error) => {
+                  console.error(
+                    "Greška pri omogućavanju pristupa Darknet-u:",
+                    error
+                  );
+                });
+            } else {
+              console.error("Korisnik s navedenim nickname-om ne postoji.");
+            }
+          })
+          .catch((error) => {
+            console.error("Greška pri dohvaćanju korisnika:", error);
+          });
+      } else {
+        console.error("Nemate ovlasti za omogućavanje pristupa Darknet-u.");
+      }
+    },
+    revokeDarknetAccess() {
+      const nickname = this.$route.params.nickname;
+      if (this.isAdmin() && nickname) {
+        db.collection("users")
+          .where("nickname", "==", nickname)
+          .get()
+          .then((querySnapshot) => {
+            if (!querySnapshot.empty) {
+              const userId = querySnapshot.docs[0].id;
+              const userRef = db.collection("users").doc(userId);
+              userRef
+                .update({
+                  darknetAccess: false,
+                })
+                .then(() => {
+                  console.log(
+                    `Pristup Darknet-u onemogućen korisniku ${nickname}.`
+                  );
+                  this.$router.go();
+                })
+                .catch((error) => {
+                  console.error(
+                    "Greška pri onemogućavanju pristupa Darknet-u:",
+                    error
+                  );
+                });
+            } else {
+              console.error("Korisnik s navedenim nickname-om ne postoji.");
+            }
+          })
+          .catch((error) => {
+            console.error("Greška pri dohvaćanju korisnika:", error);
+          });
+      } else {
+        console.error("Nemate ovlasti za omogućavanje pristupa Darknet-u.");
+      }
+    },
+    isAdmin() {
+      const adminEmail = "admin@admin.com";
+      return firebase.auth().currentUser.email === adminEmail;
+    },
+    deleteUser() {
+      if (this.isAdmin()) {
+        const nickname = this.$route.params.nickname;
+        if (nickname) {
+          db.collection("users")
+            .where("nickname", "==", nickname)
+            .get()
+            .then((querySnapshot) => {
+              if (!querySnapshot.empty) {
+                const userId = querySnapshot.docs[0].id;
+                const userRef = db.collection("users").doc(userId);
+                userRef
+                  .delete()
+                  .then(() => {
+                    console.log(`Korisnik uspješno izbrisan.`);
+                    this.$router.push("/studentcorner");
+                  })
+                  .catch((error) => {
+                    console.error("Greška pri brisanju korisnika:", error);
+                  });
+              } else {
+                console.error("Korisnik s navedenim nickname-om ne postoji.");
+              }
+            })
+            .catch((error) => {
+              console.error("Greška pri dohvaćanju korisnika:", error);
+            });
+        } else {
+          console.error("Nije naveden nickname korisnika za brisanje.");
+        }
+      } else {
+        console.error("Nemate ovlasti za brisanje korisnika.");
+      }
     },
   },
 };
