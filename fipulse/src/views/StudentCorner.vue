@@ -24,7 +24,7 @@ StudentCorner.vue:
           </button>
         </form>
         <div
-          v-for="post in forum"
+          v-for="post in filteredForum"
           :key="post.id"
           class="post"
           style="
@@ -207,6 +207,7 @@ export default {
       question: "",
       forum: [],
       store: store,
+      selectedStartDate: null,
     };
   },
   mounted() {
@@ -416,6 +417,40 @@ export default {
   computed: {
     postedFromNow() {
       return (post) => moment(post.date).format("DD.MM.YYYY. HH:mm");
+    },
+    filteredForum() {
+      const searchTerm = this.store.searchTerm.toLowerCase();
+      return this.forum.filter((post) => {
+        const questionMatches = post.que.toLowerCase().includes(searchTerm);
+
+        const answerMatches =
+          post.answers &&
+          post.answers.some((answer) => {
+            return (
+              answer.answer.toLowerCase().includes(searchTerm) ||
+              answer.userDisplayName.toLowerCase().includes(searchTerm)
+            );
+          });
+
+        const userMatches = post.userDisplayName
+          .toLowerCase()
+          .includes(searchTerm);
+
+        const postDate = moment(post.date);
+        const formattedPostDate = this.postedFromNow(post);
+        const startDate = this.selectedStartDate
+          ? moment(this.selectedStartDate)
+          : null;
+        const endDate = this.selectedEndDate
+          ? moment(this.selectedEndDate)
+          : null;
+        const dateMatches =
+          (!startDate || postDate.isSameOrAfter(startDate, "day")) &&
+          (!endDate || postDate.isSameOrBefore(endDate, "day")) &&
+          formattedPostDate.includes(searchTerm);
+
+        return questionMatches || answerMatches || userMatches || dateMatches;
+      });
     },
   },
 };

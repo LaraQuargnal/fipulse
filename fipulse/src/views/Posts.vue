@@ -81,43 +81,44 @@
             <li class="list-group-item" style="border: none">
               <div class="box-title" style="width: 100%">{{ $t("users") }}</div>
               <div class="list-group-item-content">
-                <ul
-                  style="
-                    padding-left: 10;
-                    list-style-type: none;
-                    text-align: left;
-                  "
-                >
-                  <li>
-                    <a
-                      href="#"
-                      onclick="openUserCard('Iva')"
-                      style="color: #007bff; font-weight: normal"
-                      >Iva Ivičić</a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="#"
-                      onclick="openUserCard('Marko')"
-                      style="color: #007bff; font-weight: normal"
-                      >Marko Marković</a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="#"
-                      onclick="openUserCard('Ana')"
-                      style="color: #007bff; font-weight: normal"
-                      >Ana Aničić</a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="#"
-                      onclick="openUserCard('Blablablablabla')"
-                      style="color: #007bff; font-weight: normal"
-                      >Blablablablabla Blablalbabičić</a
+                <ul style="padding-left: 35%; list-style-type: none">
+                  <li
+                    v-for="user in store.users"
+                    :key="user"
+                    @click="openUserCard(user)"
+                  >
+                    <router-link
+                      :to="{
+                        name: 'UserCardWithNickname',
+                        params: { nickname: user.nickname },
+                      }"
+                      ><div style="display: flex; align-items: center">
+                        <img
+                          v-if="user.profileImage"
+                          :src="user.profileImage"
+                          alt="Profile Picture"
+                          style="
+                            width: 30px;
+                            height: 30px;
+                            border-radius: 50%;
+                            margin-right: 5px;
+                          "
+                        />
+                        <img
+                          v-else
+                          :src="require('@/assets/userpicture.png')"
+                          alt="Default Profile Picture"
+                          style="
+                            width: 30px;
+                            height: 30px;
+                            border-radius: 50%;
+                            margin-right: 5px;
+                          "
+                        />
+                        <a href="#" style="color: #007bff; font-weight: normal"
+                          ><b>{{ user.nickname }}</b></a
+                        >
+                      </div></router-link
                     >
                   </li>
                 </ul>
@@ -129,10 +130,11 @@
     </div>
   </div>
 </template>
-      
+
 <script>
 import PostsCard from "@/components/PostsCard.vue";
 import store from "@/store";
+import { firebase } from "@/firebase";
 import { db } from "@/firebase";
 import { ref } from "vue";
 import ModalComponent from "@/components/ModalComponent.vue";
@@ -162,6 +164,24 @@ export default {
     };
   },
   mounted() {
+    firebase
+      .firestore()
+      .collection("users")
+      .get()
+      .then((querySnapshot) => {
+        this.store.users = [];
+        querySnapshot.forEach((doc) => {
+          const userData = doc.data();
+          const user = {
+            nickname: userData.nickname,
+            profileImage: userData.profileImage,
+          };
+          this.store.users.push(user);
+        });
+      })
+      .catch((error) => {
+        console.error("Error getting user data:", error);
+      });
     this.getPosts();
     this.getSubjects();
   },
@@ -181,6 +201,12 @@ export default {
   },
 
   methods: {
+    openUserCard(user) {
+      this.$router.push({
+        name: "UserCardWithNickname",
+        params: { nickname: user.nickname },
+      });
+    },
     openModal() {
       console.log("Opening modal");
       this.isModalOpened = true;
@@ -276,7 +302,7 @@ export default {
   },
 };
 </script>
-      
+
 <style scoped>
 .box-title {
   background-color: #000;
