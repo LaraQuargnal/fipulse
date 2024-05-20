@@ -1,5 +1,8 @@
-StudentCorner.vue:
 <template>
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    rel="stylesheet"
+  />
   <div class="studentcorner">
     <div class="row">
       <div class="col-3">
@@ -76,6 +79,15 @@ StudentCorner.vue:
                 "
               />
               <span>{{ post.userDisplayName }}</span>
+              <i
+                :class="{
+                  far: !post.favorite,
+                  fas: post.favorite,
+                  'fa-star': true,
+                }"
+                style="cursor: pointer; margin-left: 5px"
+                @click="toggleFavorite(post)"
+              ></i>
             </div>
             <div>{{ postedFromNow(post) }}</div>
           </div>
@@ -475,6 +487,11 @@ export default {
     showAllPosts() {
       this.darknetPostsClicked = false;
       this.getPostsAndAnswers();
+    },
+    toggleFavorite(post) {
+      if (!post.favorite) {
+        post.favorite = true;
+      }
     },
   },
   computed: {
