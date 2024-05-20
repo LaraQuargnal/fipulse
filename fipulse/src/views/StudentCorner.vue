@@ -310,6 +310,7 @@ export default {
             const answer = data.answer || "";
             const question = data.que;
             const postedAt = data.posted_at;
+            const favorite = data.favorite || false;
 
             const promise = db
               .collection("users")
@@ -328,6 +329,7 @@ export default {
                     que: question,
                     profileImage: userProfileImage,
                     answer: answer,
+                    favorite: favorite,
                   };
                   this.forum.push(post);
                   return this.getAnswers(post.id);
@@ -492,6 +494,9 @@ export default {
       if (!post.favorite) {
         post.favorite = true;
       }
+      db.collection("forum").doc(post.id).update({
+        favorite: post.favorite,
+      });
     },
   },
   computed: {
