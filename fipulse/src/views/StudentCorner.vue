@@ -243,28 +243,29 @@ export default {
     };
   },
   mounted() {
-    firebase
-      .firestore()
-      .collection("users")
-      .get()
-      .then((querySnapshot) => {
-        this.store.users = [];
-        querySnapshot.forEach((doc) => {
-          const userData = doc.data();
-          const user = {
-            nickname: userData.nickname,
-            profileImage: userData.profileImage,
-          };
-          this.store.users.push(user);
-        });
-      })
-      .catch((error) => {
-        console.error("Error getting user data:", error);
-      });
+    this.getUsers();
     this.checkCurrentUserDarknetAccess();
     this.getPostsAndAnswers();
   },
   methods: {
+    getUsers() {
+      db.collection("users")
+        .get()
+        .then((querySnapshot) => {
+          this.store.users = [];
+          querySnapshot.forEach((doc) => {
+            const userData = doc.data();
+            const user = {
+              nickname: userData.nickname,
+              profileImage: userData.profileImage,
+            };
+            this.store.users.push(user);
+          });
+        })
+        .catch((error) => {
+          console.error("Error getting user data:", error);
+        });
+    },
     checkCurrentUserDarknetAccess() {
       const currentUser = firebase.auth().currentUser;
       if (currentUser) {
@@ -353,7 +354,7 @@ export default {
         });
     },
     postNewForum() {
-      if (this.question.trim() === "" || !this.questionSubmitted) {
+      if (this.question.trim() === "") {
         return;
       }
       const question = this.question;
@@ -491,12 +492,54 @@ export default {
       this.getPostsAndAnswers();
     },
     toggleFavorite(post) {
-      if (!post.favorite) {
-        post.favorite = true;
+      const currentUser = firebase.auth().currentUser;
+
+      if (!currentUser) {
+        console.error("User not authenticated.");
+        return;
       }
-      db.collection("forum").doc(post.id).update({
-        favorite: post.favorite,
-      });
+
+      if (post.email === currentUser.email) {
+        console.error("Users cannot favorite their own posts.");
+        return;
+      }
+
+      post.favorite = !post.favorite;
+
+      const userEmail = currentUser.email;
+      console.log("User Email:", userEmail);
+
+      db.collection("users")
+        .where("email", "==", userEmail)
+        .get()
+        .then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            const userData = doc.data();
+            let grade = userData.grade || 0;
+            if (post.favorite) {
+              grade++; 
+            } 
+            else {
+              grade--;
+            }
+            doc.ref.update({ grade: grade }); 
+          });
+        })
+        .catch((error) => {
+          console.error("Error updating user grade:", error);
+        });
+
+      db.collection("forum")
+        .doc(post.id)
+        .update({
+          favorite: post.favorite,
+        })
+        .then(() => {
+          console.log("Favorite status updated successfully.");
+        })
+        .catch((error) => {
+          console.error("Error updating favorite status:", error);
+        });
     },
   },
   computed: {

@@ -51,7 +51,7 @@
           </div>
           <div class="user-info-row mt-3">
             <label>{{ $t("Grade") }}</label>
-            <span>{{ currentUser ? currentUser.email : "" }}</span>
+            <span>{{ gradeDescription }}</span>
           </div>
           <div class="user-info-row mt-3">
             <label>{{ $t("Darknet") }}</label>
@@ -154,6 +154,24 @@ export default {
   computed: {
     currentUserNickname() {
       return this.currentUser ? this.currentUser.nickname : "";
+    },
+    gradeDescription() {
+      if (!this.currentUser || !this.currentUser.grade) {
+        return "No grade";
+      }
+      const grade = this.currentUser.grade;
+
+      if (grade >= 1 && grade <= 3) {
+        return "★ Beginner";
+      } else if (grade >= 4 && grade <= 6) {
+        return "★★ Junior";
+      } else if (grade >= 7 && grade <= 9) {
+        return "★★★ Expert";
+      } else if (grade >= 10) {
+        return "★★★★ Master";
+      } else {
+        return "No grade";
+      }
     },
   },
   methods: {
