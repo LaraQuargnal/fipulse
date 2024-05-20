@@ -2,7 +2,24 @@ StudentCorner.vue:
 <template>
   <div class="studentcorner">
     <div class="row">
-      <div class="col-3"></div>
+      <div class="col-3">
+        <template v-if="currentUserHasDarknetAccess">
+          <button
+            class="btn btn-primary"
+            style="margin-top: 20px; width: 80%"
+            @click="showAllPosts"
+          >
+            {{ $t("AllPosts") }}
+          </button>
+          <button
+            class="btn btn-primary"
+            style="margin-top: 20px; width: 80%"
+            @click="showDarknetPosts"
+          >
+            {{ $t("DarknetPosts") }}
+          </button>
+        </template>
+      </div>
       <div class="col-6">
         <form @submit.prevent="postNewForum">
           <div class="form-group">
@@ -209,6 +226,8 @@ export default {
       store: store,
       selectedStartDate: null,
       selectedEndDate: null,
+      currentUserHasDarknetAccess: false,
+      darknetPostsClicked: false,
     };
   },
   mounted() {
@@ -230,10 +249,30 @@ export default {
       .catch((error) => {
         console.error("Error getting user data:", error);
       });
+    this.checkCurrentUserDarknetAccess();
     this.getPostsAndAnswers();
   },
-
   methods: {
+    checkCurrentUserDarknetAccess() {
+      const currentUser = firebase.auth().currentUser;
+      if (currentUser) {
+        const userEmail = currentUser.email;
+        db.collection("users")
+          .where("email", "==", userEmail)
+          .get()
+          .then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+              const userData = doc.data();
+              if (userData.darknetAccess === true) {
+                this.currentUserHasDarknetAccess = true;
+              }
+            });
+          })
+          .catch((error) => {
+            console.error("Error getting user data:", error);
+          });
+      }
+    },
     openUserCard(user) {
       this.$router.push({
         name: "UserCardWithNickname",
@@ -241,7 +280,11 @@ export default {
       });
     },
     getPostsAndAnswers() {
-      db.collection("forum")
+      const query = this.darknetPostsClicked
+        ? db.collection("forum").where("darknet", "==", true)
+        : db.collection("forum").where("darknet", "==", false);
+
+      query
         .orderBy("posted_at", "desc")
         .limit(50)
         .get()
@@ -256,7 +299,8 @@ export default {
             const question = data.que;
             const postedAt = data.posted_at;
 
-            const promise = db.collection("users")
+            const promise = db
+              .collection("users")
               .where("email", "==", userEmail)
               .get()
               .then((userQuerySnapshot) => {
@@ -284,7 +328,7 @@ export default {
           });
           Promise.all(promises)
             .then(() => {
-              this.forum.sort((a, b) => b.date - a.date); // Sortiranje nakon dobijanja podataka
+              this.forum.sort((a, b) => b.date - a.date);
             })
             .catch((error) => {
               console.error("Error getting posts:", error);
@@ -295,7 +339,7 @@ export default {
         });
     },
     postNewForum() {
-      if (this.question.trim() === "") {
+      if (this.question.trim() === "" || !this.questionSubmitted) {
         return;
       }
       const question = this.question;
@@ -309,6 +353,7 @@ export default {
               email: store.currentUser,
               posted_at: Date.now(),
               nickname: this.currentUserNickname,
+              darknet: this.darknetPostsClicked,
             })
             .then((doc) => {
               console.log("Spremljeno", doc);
@@ -423,8 +468,19 @@ export default {
         console.error("User not authenticated.");
       }
     },
+    showDarknetPosts() {
+      this.darknetPostsClicked = true;
+      this.getPostsAndAnswers();
+    },
+    showAllPosts() {
+      this.darknetPostsClicked = false;
+      this.getPostsAndAnswers();
+    },
   },
   computed: {
+    currentUser() {
+      return this.$store.state.currentUser;
+    },
     postedFromNow() {
       return (post) => moment(post.date).format("DD.MM.YYYY. HH:mm");
     },
@@ -455,16 +511,13 @@ export default {
             (!startDate || postDate.isSameOrAfter(startDate, "day")) &&
             (!endDate || postDate.isSameOrBefore(endDate, "day"));
 
-          return (
-            questionMatches || answerMatches || userMatches || dateMatches
-          );
+          return questionMatches || answerMatches || userMatches || dateMatches;
         })
-        .sort((a, b) => b.date - a.date); // Sortiranje nakon filtriranja
+        .sort((a, b) => b.date - a.date);
     },
   },
 };
 </script>
-
 
 <style scoped>
 .box-title {

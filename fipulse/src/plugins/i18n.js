@@ -48,7 +48,9 @@ const messages = {
     postsAllPosts: "ALL POSTS",
     deactivateUser: "DEACTIVATE USER",
     DarknetAccess: "DARKNET ACCESS",
-    DarknetRevoke: "DARKNET REVOKE"
+    DarknetRevoke: "DARKNET REVOKE",
+    AllPosts: "All Posts",
+    DarknetPosts: "Darknet Posts"
   },
   hr: {
     navBarHome: "Početna",
@@ -97,7 +99,9 @@ const messages = {
     postsAllPosts: "SVE OBJAVE",
     deactivateUser: "DEAKTIVIRANJE KORISNIKA",
     DarknetAccess: "PRISTUP 'DARKNET'-U",
-    DarknetRevoke: "ZABRANA 'DARKNET'-A"
+    DarknetRevoke: "ZABRANA 'DARKNET'-A",
+    AllPosts: "Sve objave",
+    DarknetPosts: "Darknet objave"
   },
 };
 
