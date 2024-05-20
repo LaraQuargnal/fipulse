@@ -12,9 +12,9 @@
           <div class="login-box">
             <form @submit.prevent="login">
               <div class="form-group">
-                <label for="exampleInputEmail1" style="margin-top: 10px">{{
-                  $t("loginEmailAddress")
-                }}</label>
+                <label for="exampleInputEmail1" style="margin-top: 10px">
+                  {{ $t("loginEmailAddress") }}
+                </label>
                 <input
                   type="email"
                   v-model="email"
@@ -23,18 +23,19 @@
                   aria-describedby="emailHelp"
                   :placeholder="$t('enterEmail')"
                 />
-                <small id="emailHelp" class="form-text text-muted">{{
-                  $t("loginEmailNote")
-                }}</small>
+                <small id="emailHelp" class="form-text text-muted">
+                  {{ $t("loginEmailNote") }}
+                </small>
               </div>
               <div class="form-group">
-                <label for="exampleInputPassword1" style="margin-top: 10px">{{
-                  $t("passwordLabel")
-                }}</label>
-                <input
-                  v-model="password"
-                  inputId="exampleInputPassword1"
+                <label for="exampleInputPassword1" style="margin-top: 10px">
+                  {{ $t("passwordLabel") }}
+                </label>
+                <password-input
+                  ref="passwordInput"
+                  input-id="exampleInputPassword1"
                   :placeholder="$t('passwordLabel')"
+                  @passwordInput="updatePassword"
                 />
               </div>
               <button
@@ -61,6 +62,9 @@ import store from "@/store";
 
 export default {
   name: "login",
+  components: {
+    PasswordInput,
+  },
   data() {
     return {
       email: "",
@@ -91,9 +95,9 @@ export default {
           console.error("Došlo je do greške login.", error);
         });
     },
-  },
-  components: {
-    "password-input": PasswordInput,
+    updatePassword(value) {
+      this.password = value;
+    },
   },
 };
 </script>

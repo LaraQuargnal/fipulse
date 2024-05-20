@@ -208,6 +208,7 @@ export default {
       forum: [],
       store: store,
       selectedStartDate: null,
+      selectedEndDate: null,
     };
   },
   mounted() {
@@ -246,6 +247,7 @@ export default {
         .get()
         .then((querySnapshot) => {
           this.forum = [];
+          const promises = [];
           querySnapshot.forEach((doc) => {
             const data = doc.data();
             const userEmail = data.email;
@@ -254,7 +256,7 @@ export default {
             const question = data.que;
             const postedAt = data.posted_at;
 
-            db.collection("users")
+            const promise = db.collection("users")
               .where("email", "==", userEmail)
               .get()
               .then((userQuerySnapshot) => {
@@ -272,13 +274,21 @@ export default {
                     answer: answer,
                   };
                   this.forum.push(post);
-                  this.getAnswers(post.id);
+                  return this.getAnswers(post.id);
                 });
               })
               .catch((error) => {
                 console.error("Error getting user data:", error);
               });
+            promises.push(promise);
           });
+          Promise.all(promises)
+            .then(() => {
+              this.forum.sort((a, b) => b.date - a.date); // Sortiranje nakon dobijanja podataka
+            })
+            .catch((error) => {
+              console.error("Error getting posts:", error);
+            });
         })
         .catch((error) => {
           console.error("Error getting posts:", error);
@@ -420,41 +430,41 @@ export default {
     },
     filteredForum() {
       const searchTerm = this.store.searchTerm.toLowerCase();
-      return this.forum.filter((post) => {
-        const questionMatches = post.que.toLowerCase().includes(searchTerm);
+      return this.forum
+        .filter((post) => {
+          const questionMatches = post.que.toLowerCase().includes(searchTerm);
+          const answerMatches =
+            post.answers &&
+            post.answers.some((answer) => {
+              return (
+                answer.answer.toLowerCase().includes(searchTerm) ||
+                answer.userDisplayName.toLowerCase().includes(searchTerm)
+              );
+            });
+          const userMatches = post.userDisplayName
+            .toLowerCase()
+            .includes(searchTerm);
+          const postDate = moment(post.date);
+          const startDate = this.selectedStartDate
+            ? moment(this.selectedStartDate)
+            : null;
+          const endDate = this.selectedEndDate
+            ? moment(this.selectedEndDate)
+            : null;
+          const dateMatches =
+            (!startDate || postDate.isSameOrAfter(startDate, "day")) &&
+            (!endDate || postDate.isSameOrBefore(endDate, "day"));
 
-        const answerMatches =
-          post.answers &&
-          post.answers.some((answer) => {
-            return (
-              answer.answer.toLowerCase().includes(searchTerm) ||
-              answer.userDisplayName.toLowerCase().includes(searchTerm)
-            );
-          });
-
-        const userMatches = post.userDisplayName
-          .toLowerCase()
-          .includes(searchTerm);
-
-        const postDate = moment(post.date);
-        const formattedPostDate = this.postedFromNow(post);
-        const startDate = this.selectedStartDate
-          ? moment(this.selectedStartDate)
-          : null;
-        const endDate = this.selectedEndDate
-          ? moment(this.selectedEndDate)
-          : null;
-        const dateMatches =
-          (!startDate || postDate.isSameOrAfter(startDate, "day")) &&
-          (!endDate || postDate.isSameOrBefore(endDate, "day")) &&
-          formattedPostDate.includes(searchTerm);
-
-        return questionMatches || answerMatches || userMatches || dateMatches;
-      });
+          return (
+            questionMatches || answerMatches || userMatches || dateMatches
+          );
+        })
+        .sort((a, b) => b.date - a.date); // Sortiranje nakon filtriranja
     },
   },
 };
 </script>
+
 
 <style scoped>
 .box-title {
