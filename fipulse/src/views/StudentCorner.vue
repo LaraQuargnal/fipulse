@@ -227,6 +227,7 @@ import store from "@/store";
 import moment from "moment";
 import { firebase } from "@/firebase";
 import { db } from "@/firebase";
+import { useToast } from "vue-toastification";
 
 export default {
   name: "StudentCorner",
@@ -243,6 +244,7 @@ export default {
     };
   },
   mounted() {
+    this.toast = useToast();
     this.getUsers();
     this.checkCurrentUserDarknetAccess();
     this.getPostsAndAnswers();
@@ -312,6 +314,7 @@ export default {
             const question = data.que;
             const postedAt = data.posted_at;
             const favorite = data.favorite || false;
+            const likedBy = data.likedBy || [];
 
             const promise = db
               .collection("users")
@@ -325,12 +328,14 @@ export default {
 
                   const post = {
                     id: doc.id,
+                    email: userEmail,
                     userDisplayName: userDisplayName,
                     date: postedAt,
                     que: question,
                     profileImage: userProfileImage,
                     answer: answer,
                     favorite: favorite,
+                    likedBy: likedBy,
                   };
                   this.forum.push(post);
                   return this.getAnswers(post.id);
@@ -358,28 +363,45 @@ export default {
         return;
       }
       const question = this.question;
+      const currentUser = firebase.auth().currentUser;
 
-      firebase.auth().onAuthStateChanged((user) => {
-        if (user) {
-          this.currentUserNickname = user.displayName;
-          db.collection("forum")
-            .add({
-              que: question,
-              email: store.currentUser,
-              posted_at: Date.now(),
-              nickname: this.currentUserNickname,
-              darknet: this.darknetPostsClicked,
-            })
-            .then((doc) => {
-              console.log("Spremljeno", doc);
-              this.question = "";
-              this.getPostsAndAnswers();
-            })
-            .catch((e) => {
-              console.error(e);
-            });
-        }
-      });
+      if (currentUser) {
+        const userId = currentUser.uid;
+        db.collection("users")
+          .doc(userId)
+          .get()
+          .then((userDoc) => {
+            if (userDoc.exists) {
+              const userData = userDoc.data();
+              const userDisplayName = userData.nickname;
+
+              db.collection("forum")
+                .add({
+                  que: question,
+                  email: currentUser.email,
+                  posted_at: Date.now(),
+                  nickname: userDisplayName,
+                  darknet: this.darknetPostsClicked,
+                })
+                .then((doc) => {
+                  console.log("Spremljeno", doc);
+                  this.question = "";
+                  this.getPostsAndAnswers();
+                  this.toast.success("Post successfully added!");
+                })
+                .catch((error) => {
+                  console.error("Error saving post:", error);
+                });
+            } else {
+              console.error("User data not found.");
+            }
+          })
+          .catch((error) => {
+            console.error("Error getting user data:", error);
+          });
+      } else {
+        console.error("User not authenticated.");
+      }
     },
     getAnswers(postId) {
       db.collection("forum")
@@ -495,50 +517,52 @@ export default {
       const currentUser = firebase.auth().currentUser;
 
       if (!currentUser) {
-        console.error("User not authenticated.");
+        this.toast.error("User not authenticated.");
         return;
       }
-
-      if (post.email === currentUser.email) {
-        console.error("Users cannot favorite their own posts.");
-        return;
-      }
-
-      post.favorite = !post.favorite;
 
       const userEmail = currentUser.email;
-      console.log("User Email:", userEmail);
 
-      db.collection("users")
-        .where("email", "==", userEmail)
-        .get()
-        .then((querySnapshot) => {
-          querySnapshot.forEach((doc) => {
-            const userData = doc.data();
-            let grade = userData.grade || 0;
-            if (post.favorite) {
-              grade++; 
-            } 
-            else {
-              grade--;
-            }
-            doc.ref.update({ grade: grade }); 
-          });
-        })
-        .catch((error) => {
-          console.error("Error updating user grade:", error);
-        });
+      if (post.likedBy && post.likedBy.includes(userEmail)) {
+        this.toast.error("You have already liked this post.");
+        return;
+      }
+
+      if (post.email === userEmail) {
+        this.toast.error("You cannot like your own post.");
+        return;
+      }
+
+      post.likedBy = post.likedBy || [];
+      post.likedBy.push(userEmail);
+      post.favorite = true;
 
       db.collection("forum")
         .doc(post.id)
         .update({
-          favorite: post.favorite,
+          likedBy: post.likedBy,
+          favorite: true,
         })
         .then(() => {
-          console.log("Favorite status updated successfully.");
+          db.collection("users")
+            .where("email", "==", userEmail)
+            .get()
+            .then((querySnapshot) => {
+              querySnapshot.forEach((doc) => {
+                const userData = doc.data();
+                let grade = userData.grade || 0;
+                grade++;
+                doc.ref.update({ grade: grade });
+              });
+            })
+            .catch((error) => {
+              this.toast.error("Error updating user grade.");
+            });
+
+          this.toast.success("Post successfully liked!");
         })
         .catch((error) => {
-          console.error("Error updating favorite status:", error);
+          this.toast.error("Error liking the post.");
         });
     },
   },
