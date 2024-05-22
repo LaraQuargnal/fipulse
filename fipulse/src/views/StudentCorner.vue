@@ -81,8 +81,8 @@
               <span>{{ post.userDisplayName }}</span>
               <i
                 :class="{
-                  far: !post.favorite,
-                  fas: post.favorite,
+                  far: !currentUserHasLiked(post),
+                  fas: currentUserHasLiked(post),
                   'fa-star': true,
                 }"
                 style="cursor: pointer; margin-left: 5px"
@@ -513,6 +513,12 @@ export default {
       this.darknetPostsClicked = false;
       this.getPostsAndAnswers();
     },
+    currentUserHasLiked(post) {
+      const currentUser = firebase.auth().currentUser;
+      if (!currentUser) return false;
+      const userEmail = currentUser.email;
+      return post.likedBy && post.likedBy.includes(userEmail);
+    },
     toggleFavorite(post) {
       const currentUser = firebase.auth().currentUser;
 
@@ -523,13 +529,15 @@ export default {
 
       const userEmail = currentUser.email;
 
-      if (post.likedBy && post.likedBy.includes(userEmail)) {
-        this.toast.error("You have already liked this post.");
+      if (post.email === userEmail) {
+        this.toast.error("You cannot like your own post.");
         return;
       }
 
-      if (post.email === userEmail) {
-        this.toast.error("You cannot like your own post.");
+      const hasLiked = post.likedBy && post.likedBy.includes(userEmail);
+
+      if (hasLiked) {
+        this.toast.error("You have already liked this post.");
         return;
       }
 
@@ -551,7 +559,9 @@ export default {
               querySnapshot.forEach((doc) => {
                 const userData = doc.data();
                 let grade = userData.grade || 0;
-                grade++;
+
+                grade += 1;
+
                 doc.ref.update({ grade: grade });
               });
             })
