@@ -73,7 +73,7 @@ export default {
     };
   },
   mounted() {
-    this.toast = useToast;
+    this.toast = useToast();
   },
   methods: {
     login() {
@@ -83,7 +83,6 @@ export default {
         .auth()
         .signInWithEmailAndPassword(this.email, this.password)
         .then((userCredential) => {
-          this.toast.success("Login success.");
           console.log("Uspješna prijava.", userCredential.user.email);
           store.currentUser = userCredential.user.email;
           console.log("* store.currentUser:", store.currentUser);
@@ -93,7 +92,7 @@ export default {
               ? firebase.auth().currentUser.email
               : "No user logged in"
           );
-
+          this.toast.success("Login success.");
           this.$router.replace({ name: "posts" });
         })
         .catch((error) => {

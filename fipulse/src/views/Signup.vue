@@ -101,7 +101,7 @@ export default {
     };
   },
   mounted() {
-    this.toast = useToast;
+    this.toast = useToast();
   },
   methods: {
     signup() {
@@ -109,7 +109,7 @@ export default {
         .auth()
         .createUserWithEmailAndPassword(this.email, this.password)
         .then((userCredential) => {
-          this.toast.success("Registration success");
+          this.toast.success("Registration success.");
           console.log("Uspješna registracija.", userCredential.user);
           const user = userCredential.user;
           user
