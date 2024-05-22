@@ -21,6 +21,19 @@
               style="display: none"
             />
           </div>
+          <div v-if="uploading" class="progress mt-3">
+            <div
+              class="progress-bar"
+              role="progressbar"
+              :style="{ width: progress + '%' }"
+              :aria-valuenow="progress"
+              aria-valuemin="0"
+              aria-valuemax="100"
+            ></div>
+          </div>
+          <div v-if="uploading" class="text-center mt-2">
+            <span>{{ roundedProgress }}%</span>
+          </div>
           <div class="text-center mt-3">
             <button
               v-if="!showButtons && showButton"
@@ -108,6 +121,7 @@
 <script>
 import { firebase } from "@/firebase";
 import { db, storage } from "@/firebase";
+import { useToast } from "vue-toastification";
 
 export default {
   data() {
@@ -118,6 +132,8 @@ export default {
       imageUrl: "",
       defaultImageUrl: require("@/assets/userpicture.png"),
       showButtons: false,
+      progress: 0,
+      uploading: false,
     };
   },
   props: {
@@ -173,6 +189,12 @@ export default {
         return "No grade";
       }
     },
+    roundedProgress() {
+      return this.progress.toFixed(2);
+    },
+  },
+  mounted() { 
+    this.toast = useToast();
   },
   methods: {
     checkAdmin(email) {
@@ -235,12 +257,14 @@ export default {
           nickname: this.editedNickname,
         })
         .then(() => {
-          console.log("Nickname uspješno ažuriran.");
+          this.toast.success("User nickname successfully changed.");
+
           this.currentUser.nickname = this.editedNickname;
           this.toggleEditMode();
         })
         .catch((error) => {
           console.error("Greška pri ažuriranju nicknama:", error);
+          this.toast.error("Error updating nickname.");
         });
     },
     openFileInput() {
@@ -254,13 +278,19 @@ export default {
       const storageRef = storage.ref(`users/${userId}/profileImage`);
       const uploadTask = storageRef.put(file);
 
+      this.uploading = true;
+
       uploadTask.on(
         "state_changed",
         (snapshot) => {
-          console.log(`Upload is ${snapshot.bytesTransferred} bytes`);
+          this.progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
         },
         (error) => {
           console.error("Error uploading image:", error);
+          this.toast.error("Error uploading image.");
+          this.uploading = false;
+          this.progress = 0;
         },
         () => {
           uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
@@ -271,10 +301,15 @@ export default {
                 profileImage: downloadURL,
               })
               .then(() => {
-                console.log("Profile image updated successfully");
+                this.toast.success("Profile image successfully updated.");
+                this.uploading = false;
+                this.progress = 0;
               })
               .catch((error) => {
                 console.error("Error updating profile image:", error);
+                this.toast.error("Error updating profile image.");
+                this.uploading = false;
+                this.progress = 0;
               });
           });
         }
@@ -295,9 +330,7 @@ export default {
                   darknetAccess: true,
                 })
                 .then(() => {
-                  console.log(
-                    `Pristup Darknet-u omogućen korisniku ${nickname}.`
-                  );
+                  this.toast.success("Darknet access granted to user.");
                   this.$router.go();
                 })
                 .catch((error) => {
@@ -305,6 +338,7 @@ export default {
                     "Greška pri omogućavanju pristupa Darknet-u:",
                     error
                   );
+                  this.toast.error("Error enabling Darknet access.");
                 });
             } else {
               console.error("Korisnik s navedenim nickname-om ne postoji.");
@@ -335,6 +369,9 @@ export default {
                   console.log(
                     `Pristup Darknet-u onemogućen korisniku ${nickname}.`
                   );
+                  this.toast.success(
+                    "Access to the Darknet is disabled for the user."
+                  );
                   this.$router.go();
                 })
                 .catch((error) => {
@@ -342,6 +379,7 @@ export default {
                     "Greška pri onemogućavanju pristupa Darknet-u:",
                     error
                   );
+                  this.toast.error("Error disabling Darknet access.");
                 });
             } else {
               console.error("Korisnik s navedenim nickname-om ne postoji.");
@@ -372,11 +410,12 @@ export default {
                 userRef
                   .delete()
                   .then(() => {
-                    console.log(`Korisnik uspješno izbrisan.`);
+                    this.toast.success("User successfully deleted.");
                     this.$router.push("/studentcorner");
                   })
                   .catch((error) => {
                     console.error("Greška pri brisanju korisnika:", error);
+                    this.toast.success("Error deleting user.");
                   });
               } else {
                 console.error("Korisnik s navedenim nickname-om ne postoji.");

@@ -59,6 +59,7 @@
 import PasswordInput from "@/components/PasswordInput.vue";
 import { firebase } from "@/firebase";
 import store from "@/store";
+import { useToast } from "vue-toastification";
 
 export default {
   name: "login",
@@ -71,6 +72,9 @@ export default {
       password: "",
     };
   },
+  mounted() {
+    this.toast = useToast;
+  },
   methods: {
     login() {
       console.log("Email:", this.email);
@@ -79,6 +83,7 @@ export default {
         .auth()
         .signInWithEmailAndPassword(this.email, this.password)
         .then((userCredential) => {
+          this.toast.success("Login success.");
           console.log("Uspješna prijava.", userCredential.user.email);
           store.currentUser = userCredential.user.email;
           console.log("* store.currentUser:", store.currentUser);
@@ -92,6 +97,7 @@ export default {
           this.$router.replace({ name: "posts" });
         })
         .catch((error) => {
+          this.toast.error("Error login in.");
           console.error("Došlo je do greške login.", error);
         });
     },

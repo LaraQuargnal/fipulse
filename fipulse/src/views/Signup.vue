@@ -88,6 +88,7 @@
 
 <script>
 import { firebase } from "@/firebase";
+import { useToast } from "vue-toastification";
 
 export default {
   name: "signup",
@@ -99,12 +100,16 @@ export default {
       passwordConfirm: "",
     };
   },
+  mounted() {
+    this.toast = useToast;
+  },
   methods: {
     signup() {
       firebase
         .auth()
         .createUserWithEmailAndPassword(this.email, this.password)
         .then((userCredential) => {
+          this.toast.success("Registration success");
           console.log("Uspješna registracija.", userCredential.user);
           const user = userCredential.user;
           user
@@ -113,10 +118,9 @@ export default {
             })
             .then(() => {
               if (this.email === "teaa15@gmail.com") {
-                user
-                  .updateProfile({
-                    darknetAccess: true,
-                  })
+                user.updateProfile({
+                  darknetAccess: true,
+                });
               }
               firebase
                 .firestore()
@@ -125,13 +129,14 @@ export default {
                 .set({
                   nickname: this.nickname,
                   email: user.email,
-                  darknetAccess: this.email === 'teaa15@gmail.com'
                 })
                 .catch((error) => {
+                  this.toast.error("Error saving user data.");
                   console.error("Greška pri spremanju podataka.", error);
                 });
             })
             .catch(function (error) {
+              this.toast.error("Error.");
               console.error("Došlo je do greške.", error);
             });
         });
