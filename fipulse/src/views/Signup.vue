@@ -105,6 +105,10 @@ export default {
   },
   methods: {
     signup() {
+      if (!this.email.endsWith("@unipu.hr")) {
+        this.toast.error("Only @unipu.hr email addresses are allowed.");
+        return;
+      }
       firebase
         .auth()
         .createUserWithEmailAndPassword(this.email, this.password)
