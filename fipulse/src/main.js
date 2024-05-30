@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import "bootstrap/dist/js/bootstrap";
 import "bootstrap/dist/css/bootstrap.css";
 import i18n from "@/plugins/i18n";
+import "@fortawesome/fontawesome-free/css/all.css";
 
 library.add(fas);
 

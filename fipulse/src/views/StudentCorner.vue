@@ -237,8 +237,6 @@ export default {
       question: "",
       forum: [],
       store: store,
-      selectedStartDate: null,
-      selectedEndDate: null,
       currentUserHasDarknetAccess: false,
       darknetPostsClicked: false,
     };
@@ -599,20 +597,9 @@ export default {
           const userMatches = post.userDisplayName
             .toLowerCase()
             .includes(searchTerm);
-          const postDate = moment(post.date);
-          const startDate = this.selectedStartDate
-            ? moment(this.selectedStartDate)
-            : null;
-          const endDate = this.selectedEndDate
-            ? moment(this.selectedEndDate)
-            : null;
-          const dateMatches =
-            (!startDate || postDate.isSameOrAfter(startDate, "day")) &&
-            (!endDate || postDate.isSameOrBefore(endDate, "day"));
 
-          return questionMatches || answerMatches || userMatches || dateMatches;
+          return questionMatches || answerMatches || userMatches;
         })
-        .sort((a, b) => b.date - a.date);
     },
   },
 };

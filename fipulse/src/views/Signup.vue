@@ -121,11 +121,6 @@ export default {
               displayName: this.nickname,
             })
             .then(() => {
-              if (this.email === "teaa15@gmail.com") {
-                user.updateProfile({
-                  darknetAccess: true,
-                });
-              }
               firebase
                 .firestore()
                 .collection("users")
