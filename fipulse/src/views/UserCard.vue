@@ -114,6 +114,121 @@
           </div>
         </div>
       </div>
+      <div class="col-2"></div>
+      <div class="col-8">
+        <div class="card card-bordered">
+          <div class="card-header">
+            <h4 class="card-title"><strong>Chat</strong></h4>
+          </div>
+          <div
+            class="ps-container ps-theme-default ps-active-y"
+            id="chat-content"
+            style="overflow-y: scroll !important; height: 400px !important"
+          >
+            <div
+              v-for="message in messages"
+              :key="message.id"
+              class="media d-flex align-items-center justify-content-between"
+              :class="{
+                'media-chat': message.sender !== currentUser.email,
+                'media-chat-reverse': message.sender === currentUser.email,
+              }"
+            >
+              <div
+                v-if="message.sender !== currentUser.email"
+                class="d-flex align-items-center"
+              >
+                <img
+                  v-if="message.sender !== currentUser.email"
+                  class="avatar"
+                  :src="imageUrl || defaultImageUrl"
+                  alt="..."
+                />
+                <div class="media-body ms-3">
+                  <p>
+                    <span>{{ message.senderNickname }}: </span
+                    >{{ message.text }} (<span class="meta">
+                      {{
+                        message.timestamp
+                          ? new Date(
+                              message.timestamp.toDate()
+                            ).toLocaleTimeString()
+                          : ""
+                      }} </span
+                    >)
+                  </p>
+                </div>
+              </div>
+              <div v-else class="d-flex align-items-center">
+                <div class="media-body me-3 text-end">
+                  <p>
+                    {{ message.text }}
+                    (<span class="meta">
+                      {{
+                        message.timestamp
+                          ? new Date(
+                              message.timestamp.toDate()
+                            ).toLocaleTimeString()
+                          : ""
+                      }} </span
+                    >)
+                  </p>
+                </div>
+                <img
+                  v-if="currentUser && currentUser.profileImage"
+                  class="avatar"
+                  :src="currentUser.profileImage || defaultImageUrl"
+                  alt="..."
+                />
+              </div>
+            </div>
+          </div>
+          <div class="publisher bt-1 border-light">
+            <img
+              class="avatar avatar-xs"
+              :src="
+                currentUser
+                  ? currentUser.profileImage || defaultImageUrl
+                  : defaultImageUrl
+              "
+              alt="..."
+            />
+            <input
+              class="publisher-input"
+              type="text"
+              v-model="newMessage"
+              @keyup.enter="sendMessage"
+              placeholder="Write something"
+            />
+            <span class="publisher-btn file-group">
+              <i
+                class="fa fa-paperclip file-browser"
+                @click="openFileInput"
+              ></i>
+              <input type="file" ref="fileInput" @change="handleFileChange" />
+            </span>
+            <a
+              class="publisher-btn"
+              href="#"
+              data-abc="true"
+              @click="toggleEmoji"
+              ><i class="fa fa-smile"></i
+            ></a>
+            <a
+              class="publisher-btn text-info"
+              href="#"
+              data-abc="true"
+              @click="sendMessage"
+              ><i class="fa fa-paper-plane"></i
+            ></a>
+          </div>
+          <EmojiPicker
+            v-if="showEmojiPicker"
+            :native="true"
+            @select="onSelectEmoji"
+          />
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -123,8 +238,13 @@ import { firebase } from "@/firebase";
 import { db, storage } from "@/firebase";
 import { useToast } from "vue-toastification";
 import "../styles/userCard.css";
+import EmojiPicker from "vue3-emoji-picker";
+import "vue3-emoji-picker/css";
 
 export default {
+  components: {
+    EmojiPicker,
+  },
   data() {
     return {
       currentUser: null,
@@ -135,6 +255,10 @@ export default {
       showButtons: false,
       progress: 0,
       uploading: false,
+      newMessage: "",
+      messages: [],
+      receiverNickname: "",
+      showEmojiPicker: false,
     };
   },
   props: {
@@ -149,6 +273,7 @@ export default {
   created() {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
+        this.currentUser = user;
         this.checkAdmin(user.email);
       } else {
         this.$router.push("/login");
@@ -167,6 +292,10 @@ export default {
     } else {
       this.fetchUserByNickname();
     }
+
+    this.receiverNickname = this.$route.params.nickname || "";
+    this.fetchMessages();
+    this.getCurrentUser();
   },
   computed: {
     currentUserNickname() {
@@ -218,6 +347,7 @@ export default {
                 if (userData.profileImage) {
                   this.imageUrl = userData.profileImage;
                 }
+                this.$forceUpdate();
               }
             })
             .catch((error) => {
@@ -332,7 +462,7 @@ export default {
                 })
                 .then(() => {
                   this.toast.success("Darknet access granted to user.");
-                  this.$router.go();
+                  this.fetchUserData();
                 })
                 .catch((error) => {
                   console.error(
@@ -373,7 +503,7 @@ export default {
                   this.toast.success(
                     "Access to the Darknet is disabled for the user."
                   );
-                  this.$router.go();
+                  this.fetchUserData();
                 })
                 .catch((error) => {
                   console.error(
@@ -415,23 +545,281 @@ export default {
                     this.$router.push("/studentcorner");
                   })
                   .catch((error) => {
-                    console.error("Greška pri brisanju korisnika:", error);
+                    console.error("Error deleting user:", error);
                     this.toast.success("Error deleting user.");
                   });
               } else {
-                console.error("Korisnik s navedenim nickname-om ne postoji.");
+                console.error(
+                  "User with the specified nickname does not exist."
+                );
               }
             })
             .catch((error) => {
-              console.error("Greška pri dohvaćanju korisnika:", error);
+              console.error("Error fetching user:", error);
             });
         } else {
-          console.error("Nije naveden nickname korisnika za brisanje.");
+          console.error("User nickname for deletion is not specified.");
         }
       } else {
-        console.error("Nemate ovlasti za brisanje korisnika.");
+        console.error("You do not have permission to delete users.");
       }
+    },
+    getCurrentUser() {
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+          this.currentUser = user;
+        }
+      });
+    },
+    fetchMessages() {
+      db.collection("messages")
+        .orderBy("timestamp")
+        .onSnapshot((snapshot) => {
+          const messages = [];
+          snapshot.forEach((doc) => {
+            const messageData = doc.data();
+            messages.push({
+              id: doc.id,
+              ...messageData,
+            });
+          });
+          this.messages = messages;
+          this.scrollToBottomChat();
+        });
+    },
+    sendMessage() {
+      if (this.newMessage.trim() === "") {
+        return;
+      }
+
+      const senderEmail = this.currentUser.email;
+      const receiverNickname = this.receiverNickname || senderEmail;
+
+      const message = {
+        text: this.newMessage,
+        sender: senderEmail,
+        senderNickname: this.currentUser.nickname,
+        receiver: receiverNickname,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      };
+
+      db.collection("messages")
+        .add(message)
+        .then(() => {
+          this.newMessage = "";
+          this.scrollToBottomChat();
+        })
+        .catch((error) => {
+          console.error("Error sending message:", error);
+        });
+    },
+    scrollToBottomChat() {
+      const chatContent = document.getElementById("chat-content");
+      if (chatContent) {
+        chatContent.scrollTop = chatContent.scrollHeight;
+      }
+    },
+    openFileInput() {
+      this.$refs.fileInput.click();
+    },
+    handleFileChange(event) {
+      const file = event.target.files[0];
+      if (file) {
+        this.uploadFile(file);
+      }
+    },
+    uploadFile(file) {
+      const userId = this.currentUser.uid;
+      const storageRef = firebase
+        .storage()
+        .ref(`attachments/${userId}/${file.name}`);
+      const uploadTask = storageRef.put(file);
+
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          this.progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        },
+        (error) => {
+          console.error("Error uploading file:", error);
+          this.uploading = false;
+          this.progress = 0;
+        },
+        () => {
+          uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+            this.sendMessageWithAttachment(downloadURL);
+            this.uploading = false;
+            this.progress = 0;
+          });
+        }
+      );
+    },
+    sendMessageWithAttachment(url) {
+      const message = {
+        text: this.newMessage,
+        sender: this.currentUser.email,
+        senderNickname: this.currentUser.nickname,
+        receiver: this.receiverNickname || this.currentUser.email,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        attachment: url,
+      };
+      db.collection("messages")
+        .add(message)
+        .then(() => {
+          this.newMessage = "";
+        })
+        .catch((error) => {
+          console.error("Error sending message with attachment:", error);
+        });
+    },
+    toggleEmoji() {
+      event.preventDefault();
+      this.showEmojiPicker = !this.showEmojiPicker;
+    },
+    onSelectEmoji(emoji) {
+      this.newMessage += emoji.i;
+      this.showEmojiPicker = false;
     },
   },
 };
 </script>
+
+<style scoped>
+.user-card {
+  margin: 20px;
+  text-align: center;
+}
+
+.user-card-image {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.profile-image {
+  display: block;
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  max-height: 300px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .profile-image {
+    max-width: 150px;
+  }
+}
+
+.user-info {
+  margin: 20px;
+  text-align: left;
+}
+
+.user-info-row {
+  margin-bottom: 10px;
+}
+
+label {
+  font-weight: bold;
+}
+
+.card-bordered {
+  border: 1px solid #ebebeb;
+}
+
+.card {
+  border: 0;
+  border-radius: 0px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.03);
+  transition: 0.5s;
+}
+
+.padding {
+  padding: 3rem !important;
+}
+
+.card-header:first-child {
+  border-radius: calc(0.25rem - 1px) calc(0.25rem - 1px) 0 0;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: transparent;
+  border-bottom: 1px solid rgba(77, 82, 89, 0.07);
+}
+
+.card-title {
+  font-size: 17px;
+  font-weight: 300;
+  line-height: 1.5;
+  margin-bottom: 0;
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(77, 82, 89, 0.07);
+}
+
+.ps-container {
+  position: relative;
+  overflow: hidden !important;
+}
+
+.media-chat {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.media-chat-reverse {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  flex-direction: row-reverse;
+}
+
+.media-body {
+  max-width: 70%;
+  word-wrap: break-word;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.publisher {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+}
+
+.publisher-input {
+  flex-grow: 1;
+  border: none;
+  padding: 10px;
+  margin-left: 10px;
+  border-radius: 20px;
+  background: #f1f1f1;
+}
+
+.publisher-btn {
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+.file-group input {
+  display: none;
+}
+
+.text-info {
+  color: #48b0f7 !important;
+}
+</style>
