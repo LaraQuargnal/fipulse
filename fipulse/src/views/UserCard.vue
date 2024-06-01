@@ -122,6 +122,7 @@
 import { firebase } from "@/firebase";
 import { db, storage } from "@/firebase";
 import { useToast } from "vue-toastification";
+import "../styles/userCard.css";
 
 export default {
   data() {
@@ -193,7 +194,7 @@ export default {
       return this.progress.toFixed(2);
     },
   },
-  mounted() { 
+  mounted() {
     this.toast = useToast();
   },
   methods: {
@@ -434,45 +435,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.user-card {
-  margin: 20px;
-  text-align: center;
-}
-
-.user-card-image {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
-
-.profile-image {
-  display: block;
-  width: 100%;
-  max-width: 300px;
-  height: auto;
-  max-height: 300px;
-  border-radius: 50%;
-  overflow: hidden;
-}
-
-@media (max-width: 768px) {
-  .profile-image {
-    max-width: 150px;
-  }
-}
-
-.user-info {
-  margin: 20px;
-  text-align: left;
-}
-
-.user-info-row {
-  margin-bottom: 10px;
-}
-
-label {
-  font-weight: bold;
-}
-</style>

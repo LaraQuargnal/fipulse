@@ -58,15 +58,7 @@
         <PostsCard :cards="filteredCards" :key="cards.id" />
       </div>
       <div class="col-3" style="padding-left: 50px">
-        <div
-          class="col-content"
-          style="
-            text-align: center;
-            background-color: #f0f0f0;
-            padding: 20px;
-            padding-bottom: 40px;
-          "
-        >
+        <div class="col-content">
           <form class="d-flex" role="search">
             <input
               v-model="store.searchTerm"
@@ -81,7 +73,7 @@
             <li class="list-group-item" style="border: none">
               <div class="box-title" style="width: 100%">{{ $t("users") }}</div>
               <div class="list-group-item-content">
-                <ul style="padding-left: 35%; list-style-type: none">
+                <ul style="list-style-type: none">
                   <li
                     v-for="user in store.users"
                     :key="user"
@@ -97,23 +89,13 @@
                           v-if="user.profileImage"
                           :src="user.profileImage"
                           alt="Profile Picture"
-                          style="
-                            width: 30px;
-                            height: 30px;
-                            border-radius: 50%;
-                            margin-right: 5px;
-                          "
+                          class="user-profile-img"
                         />
                         <img
                           v-else
                           :src="require('@/assets/userpicture.png')"
                           alt="Default Profile Picture"
-                          style="
-                            width: 30px;
-                            height: 30px;
-                            border-radius: 50%;
-                            margin-right: 5px;
-                          "
+                          class="user-profile-img"
                         />
                         <a href="#" style="color: #007bff; font-weight: normal"
                           ><b>{{ user.nickname }}</b></a
@@ -138,6 +120,7 @@ import { firebase } from "@/firebase";
 import { db } from "@/firebase";
 import { ref } from "vue";
 import ModalComponent from "@/components/ModalComponent.vue";
+import "../styles/posts.css";
 
 const isModalOpened = ref(false);
 
@@ -302,64 +285,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.box-title {
-  background-color: #000;
-  color: #fff;
-  padding: 10px;
-  margin-bottom: 5px;
-  text-align: center;
-  width: 100%;
-}
-
-.menu-button {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  height: 40px;
-  text-align: left;
-  padding-left: 20px;
-  border: 1px solid #808080;
-}
-
-.dropdown {
-  position: relative;
-}
-
-.dropdown-content {
-  display: none;
-  background-color: #f9f9f9;
-  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
-  z-index: 1;
-  margin-top: 5px;
-  width: 100%;
-}
-
-.open .dropdown-content {
-  display: block;
-}
-
-.dropdown-content button {
-  text-align: left;
-  padding: 12px 16px;
-  border: none;
-  background-color: transparent;
-  cursor: pointer;
-  width: 100%;
-}
-
-.dropdown-content button:hover {
-  background-color: #f1f1f1;
-}
-
-.button-text {
-  flex: 1;
-}
-
-.button-sign {
-  margin-right: 10px;
-  padding-right: 10px;
-}
-</style>

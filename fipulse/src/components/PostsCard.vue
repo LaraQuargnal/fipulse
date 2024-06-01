@@ -24,6 +24,7 @@
 <script>
 import moment from "moment";
 import { storage } from "@/firebase";
+import "../styles/postsCard.css";
 
 export default {
   name: "PostsCard",
@@ -49,51 +50,3 @@ export default {
   },
 };
 </script>
-
-
-<style scoped>
-.post {
-  border: 1px solid #ccc;
-  padding: 10px;
-  margin-top: 20px;
-}
-
-.post-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.user-info {
-  flex-grow: 1;
-  text-align: left;
-}
-
-.user-name {
-  font-weight: bold;
-}
-
-.post-comment {
-  text-align: left;
-}
-
-.post-date {
-  color: #777;
-  font-size: 12px;
-}
-
-.post-title {
-  margin-bottom: 10px;
-  text-align: left;
-}
-
-.attachment {
-  margin-top: 10px;
-}
-
-.attachment a {
-  color: #007bff;
-  text-decoration: underline;
-}
-</style>

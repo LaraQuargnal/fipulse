@@ -8,6 +8,8 @@
 </template>
 
 <script>
+import "../styles/splashScreen.css";
+
 export default {
   name: "SplashScreen",
   data() {
@@ -29,30 +31,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.splash-screen {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  opacity: 0;
-  transition: opacity 0.5s ease-in-out;
-}
-
-.splash-screen.show {
-  opacity: 1;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s;
-}
-
-.logo {
-  width: 100%;
-  max-width: 500px;
-  height: auto;
-}
-</style>

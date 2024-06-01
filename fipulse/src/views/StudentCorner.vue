@@ -1,8 +1,4 @@
 <template>
-  <link
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
-    rel="stylesheet"
-  />
   <div class="studentcorner">
     <div class="row">
       <div class="col-3">
@@ -43,40 +39,20 @@
             {{ $t("addForum") }}
           </button>
         </form>
-        <div
-          v-for="post in filteredForum"
-          :key="post.id"
-          class="post"
-          style="
-            border: 1px solid #ccc;
-            padding: 10px;
-            margin-top: 20px;
-            background-color: #e6f7ff;
-          "
-        >
+        <div v-for="post in filteredForum" :key="post.id" class="post">
           <div style="display: flex; justify-content: space-between">
             <div style="font-weight: bold">
               <img
                 v-if="post.profileImage"
                 :src="post.profileImage"
                 alt="Profile Picture"
-                style="
-                  width: 30px;
-                  height: 30px;
-                  border-radius: 50%;
-                  margin-right: 5px;
-                "
+                class="profile-picture"
               />
               <img
                 v-else
                 :src="require('@/assets/userpicture.png')"
                 alt="Default Profile Picture"
-                style="
-                  width: 30px;
-                  height: 30px;
-                  border-radius: 50%;
-                  margin-right: 5px;
-                "
+                class="profile-picture"
               />
               <span>{{ post.userDisplayName }}</span>
               <i
@@ -105,23 +81,13 @@
                   v-if="answer.userProfileImage"
                   :src="answer.userProfileImage"
                   alt="Profile Picture"
-                  style="
-                    width: 30px;
-                    height: 30px;
-                    border-radius: 50%;
-                    margin-right: 5px;
-                  "
+                  class="profile-picture"
                 />
                 <img
                   v-else
                   :src="require('@/assets/userpicture.png')"
                   alt="Default Profile Picture"
-                  style="
-                    width: 30px;
-                    height: 30px;
-                    border-radius: 50%;
-                    margin-right: 5px;
-                  "
+                  class="profile-picture"
                 />
                 <p>
                   <b>{{ answer.userDisplayName }}:</b> {{ answer.answer }}
@@ -149,15 +115,7 @@
         </div>
       </div>
       <div class="col-3" style="padding-left: 20px">
-        <div
-          class="col-content"
-          style="
-            text-align: center;
-            background-color: #f0f0f0;
-            padding: 20px;
-            padding-bottom: 40px;
-          "
-        >
+        <div class="col-content">
           <form class="d-flex" role="search" style="margin-left: 10px">
             <input
               v-model="store.searchTerm"
@@ -188,23 +146,13 @@
                           v-if="user.profileImage"
                           :src="user.profileImage"
                           alt="Profile Picture"
-                          style="
-                            width: 30px;
-                            height: 30px;
-                            border-radius: 50%;
-                            margin-right: 5px;
-                          "
+                          class="profile-picture"
                         />
                         <img
                           v-else
                           :src="require('@/assets/userpicture.png')"
                           alt="Default Profile Picture"
-                          style="
-                            width: 30px;
-                            height: 30px;
-                            border-radius: 50%;
-                            margin-right: 5px;
-                          "
+                          class="profile-picture"
                         />
                         <a href="#" style="color: #007bff; font-weight: normal"
                           ><b>{{ user.nickname }}</b></a
@@ -228,6 +176,7 @@ import moment from "moment";
 import { firebase } from "@/firebase";
 import { db } from "@/firebase";
 import { useToast } from "vue-toastification";
+import "../styles/studentCorner.css";
 
 export default {
   name: "StudentCorner",
@@ -617,14 +566,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.box-title {
-  background-color: #000;
-  color: #fff;
-  padding: 10px;
-  margin-bottom: 5px;
-  text-align: center;
-  width: 230px;
-}
-</style>

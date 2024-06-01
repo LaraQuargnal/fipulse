@@ -29,6 +29,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { GoogleMap, Marker, InfoWindow, CustomControl } from "vue3-google-map";
+import "../styles/home.css";
 
 const center = ref({ lat: 44.86657875823181, lng: 13.852038675419786 });
 const userLocation = ref(null);
@@ -105,42 +106,8 @@ onMounted(() => {
     }
   );
 });
-const hyTea = () => alert("Hej, Prikoučkarka!");
+const hyTea = () =>
+  alert(
+    "Welcome to the map!\n\nInstructions:\n- Click on markers to see more details about each location.\n- Your current location is marked with a red dot.\n- Green dots represent educational buildings.\n- Blue dots represent cafes and other facilities."
+  );
 </script>
-
-<style scoped>
-.home {
-  margin: 0;
-  padding: 0;
-}
-.custom-btn {
-  box-sizing: border-box;
-  background: white;
-  height: 40px;
-  width: 40px;
-  border-radius: 2px;
-  border: 0px;
-  margin: 10px;
-  padding: 0px;
-  font-size: 1.25rem;
-  text-transform: none;
-  appearance: none;
-  cursor: pointer;
-  user-select: none;
-  box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 4px -1px;
-  overflow: hidden;
-}
-
-.info-window {
-  max-width: 150px;
-  font-size: 12px;
-}
-.info-window h3 {
-  margin: 0;
-  font-size: 14px;
-}
-.info-window p {
-  margin: 0;
-  text-align: left;
-}
-</style>
