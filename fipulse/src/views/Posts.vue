@@ -2,7 +2,7 @@
   <div class="posts">
     <div class="row">
       <div class="col-2">
-        <div class="box-title">{{ $t("browseCategories") }}</div>
+        <div class="box-titlePosts">{{ $t("browseCategories") }}</div>
         <div
           v-for="(dropdown, index) in dropdowns"
           :key="index"
@@ -11,7 +11,7 @@
         >
           <button
             :ref="'menuButton' + index"
-            class="menu-button"
+            class="menu-buttonPosts"
             @click="toggleDropdown(index)"
           >
             <span class="button-text">{{ dropdown.label }}</span>
@@ -52,7 +52,11 @@
           :getPosts="getPosts"
         >
         </ModalComponent>
-        <button class="box-title" style="margin-top: 30px" @click="clearFilter">
+        <button
+          class="box-titlePosts"
+          style="margin-top: 30px"
+          @click="clearFilter"
+        >
           {{ $t("postsAllPosts") }}
         </button>
         <PostsCard :cards="filteredCards" :key="cards.id" />
@@ -71,7 +75,9 @@
           </form>
           <ul class="list-group" style="margin-top: 30px; border: none">
             <li class="list-group-item" style="border: none">
-              <div class="box-title" style="width: 100%">{{ $t("users") }}</div>
+              <div class="box-titlePosts" style="width: 100%">
+                {{ $t("users") }}
+              </div>
               <div class="list-group-item-content">
                 <ul style="list-style-type: none">
                   <li
@@ -89,13 +95,13 @@
                           v-if="user.profileImage"
                           :src="user.profileImage"
                           alt="Profile Picture"
-                          class="user-profile-img"
+                          class="user-profile-imgPosts"
                         />
                         <img
                           v-else
                           :src="require('@/assets/userpicture.png')"
                           alt="Default Profile Picture"
-                          class="user-profile-img"
+                          class="user-profile-imgPosts"
                         />
                         <a href="#" style="color: #007bff; font-weight: normal"
                           ><b>{{ user.nickname }}</b></a

@@ -1,4 +1,4 @@
-.box-title {
+.box-titlePosts {
     background-color: #000;
     color: #fff;
     padding: 10px;
@@ -7,7 +7,7 @@
     width: 100%;
   }
   
-  .menu-button {
+  .menu-buttonPosts {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -57,7 +57,7 @@
     padding-right: 10px;
   }
   
-  .user-profile-img {
+  .user-profile-imgPosts {
     width: 30px;
     height: 30px;
     border-radius: 50%;

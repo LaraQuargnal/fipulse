@@ -1,44 +1,44 @@
-.post {
+.postCard {
     border: 1px solid #ccc;
     padding: 10px;
     margin-top: 20px;
   }
   
-  .post-header {
+  .postCard-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 10px;
   }
   
-  .user-info {
+  .userCard-info {
     flex-grow: 1;
     text-align: left;
   }
   
-  .user-name {
+  .userCard-name {
     font-weight: bold;
   }
   
-  .post-comment {
+  .postCard-comment {
     text-align: left;
   }
   
-  .post-date {
+  .postCard-date {
     color: #777;
     font-size: 12px;
   }
   
-  .post-title {
+  .postCard-title {
     margin-bottom: 10px;
     text-align: left;
   }
   
-  .attachment {
+  .attachmentCard {
     margin-top: 10px;
   }
   
-  .attachment a {
+  .attachmentCard a {
     color: #007bff;
     text-decoration: underline;
   }
