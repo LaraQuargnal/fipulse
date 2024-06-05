@@ -78,46 +78,12 @@
               style="font-size: 14px"
             />
           </form>
-          <ul class="list-group" style="margin-top: 30px; border: none">
-            <li class="list-group-item" style="border: none">
-              <div class="box-titlePosts" style="width: 100%">
-                {{ $t("users") }}
-              </div>
-              <div class="list-group-item-content">
-                <ul style="list-style-type: none">
-                  <li
-                    v-for="user in store.users"
-                    :key="user"
-                    @click="openUserCard(user)"
-                  >
-                    <router-link
-                      :to="{
-                        name: 'UserCardWithNickname',
-                        params: { nickname: user.nickname },
-                      }"
-                      ><div style="display: flex; align-items: center">
-                        <img
-                          v-if="user.profileImage"
-                          :src="user.profileImage"
-                          alt="Profile Picture"
-                          class="user-profile-imgPosts"
-                        />
-                        <img
-                          v-else
-                          :src="require('@/assets/userpicture.png')"
-                          alt="Default Profile Picture"
-                          class="user-profile-imgPosts"
-                        />
-                        <a href="#" style="color: #007bff; font-weight: normal"
-                          ><b>{{ user.nickname }}</b></a
-                        >
-                      </div></router-link
-                    >
-                  </li>
-                </ul>
-              </div>
-            </li>
-          </ul>
+          <UserList
+            :userList="store.users"
+            :userCardRouteName="'UserCardWithNickname'"
+            placeholder="Search Users"
+            userListTitle="Users"
+          />
         </div>
       </div>
     </div>
@@ -127,6 +93,7 @@
 <script>
 import PostsCard from "@/components/PostsCard.vue";
 import store from "@/store";
+import UserList from "@/components/UserList.vue";
 import { firebase } from "@/firebase";
 import { db } from "@/firebase";
 import { ref } from "vue";
@@ -143,6 +110,7 @@ export default {
   components: {
     PostsCard,
     ModalComponent,
+    UserList,
   },
   data() {
     return {
@@ -185,13 +153,15 @@ export default {
     filteredCards() {
       let searchTerm = this.store.searchTerm.toLowerCase();
       return this.cards.filter((card) =>
-        ["title", "subject", "comment", "user", "userDisplayName"].some((prop) => {
-          const value = card[prop];
-          return (
-            typeof value === "string" &&
-            value.toLowerCase().includes(searchTerm)
-          );
-        })
+        ["title", "subject", "comment", "user", "userDisplayName"].some(
+          (prop) => {
+            const value = card[prop];
+            return (
+              typeof value === "string" &&
+              value.toLowerCase().includes(searchTerm)
+            );
+          }
+        )
       );
     },
   },
