@@ -89,7 +89,13 @@
             </button>
           </div>
           <div class="text-left mt-3">
-            <button v-if="!showButtons" class="btn btn-primary">CHAT</button>
+            <button
+              v-if="!showButtons"
+              class="btn btn-primary"
+              @click="toggleChatForm"
+            >
+              CHAT
+            </button>
             <button
               v-if="showButtons"
               @click="deleteUser"
@@ -115,7 +121,7 @@
         </div>
       </div>
       <div class="col-2"></div>
-      <div class="col-8">
+      <div v-if="showChatForm" class="col-8">
         <div class="card card-bordered">
           <div class="card-header">
             <h4 class="card-title"><strong>Chat</strong></h4>
@@ -123,6 +129,7 @@
           <div
             class="ps-container ps-theme-default ps-active-y"
             id="chat-content"
+            ref="chatContent"
             style="overflow-y: scroll !important; height: 400px !important"
           >
             <div
@@ -134,6 +141,14 @@
                 'media-chat-reverse': message.sender === currentUser.email,
               }"
             >
+              <div v-if="message.type === 'text'">{{ message.content }}</div>
+              <div v-else-if="message.type === 'image'">
+                <img
+                  :src="message.content"
+                  alt="Chat Image"
+                  style="max-width: 70%"
+                />
+              </div>
               <div
                 v-if="message.sender !== currentUser.email"
                 class="d-flex align-items-center"
@@ -201,12 +216,22 @@
               placeholder="Write something"
             />
             <span class="publisher-btn file-group">
-              <i
-                class="fa fa-paperclip file-browser"
-                @click="openFileInput"
-              ></i>
-              <input type="file" ref="fileInput" @change="handleFileChange" />
-            </span>
+              <a
+                class="publisher-btn"
+                href="#"
+                data-abc="true"
+                @click="openImageInput"
+              >
+                <i class="fa fa-image"></i> </a
+            ></span>
+            <input
+              ref="imageInput"
+              type="file"
+              class="form-control mt-3"
+              accept="image/*"
+              @change="handleFileChange"
+              style="display: none"
+            />
             <a
               class="publisher-btn"
               href="#"
@@ -259,6 +284,7 @@ export default {
       messages: [],
       receiverNickname: "",
       showEmojiPicker: false,
+      showChatForm: false,
     };
   },
   props: {
@@ -614,68 +640,32 @@ export default {
         });
     },
     scrollToBottomChat() {
-      const chatContent = document.getElementById("chat-content");
-      if (chatContent) {
-        chatContent.scrollTop = chatContent.scrollHeight;
-      }
-    },
-    openFileInput() {
-      this.$refs.fileInput.click();
-    },
-    handleFileChange(event) {
-      const file = event.target.files[0];
-      if (file) {
-        this.uploadFile(file);
-      }
-    },
-    uploadFile(file) {
-      const userId = this.currentUser.uid;
-      const storageRef = firebase
-        .storage()
-        .ref(`attachments/${userId}/${file.name}`);
-      const uploadTask = storageRef.put(file);
-
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          this.progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        },
-        (error) => {
-          console.error("Error uploading file:", error);
-          this.uploading = false;
-          this.progress = 0;
-        },
-        () => {
-          uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-            this.sendMessageWithAttachment(downloadURL);
-            this.uploading = false;
-            this.progress = 0;
-          });
+      this.$nextTick(() => {
+        const chatContent = this.$refs.chatContent;
+        if (chatContent) {
+          chatContent.scrollTop = chatContent.scrollHeight;
         }
-      );
+      });
     },
-    sendMessageWithAttachment(url) {
-      const message = {
-        text: this.newMessage,
-        sender: this.currentUser.email,
-        senderNickname: this.currentUser.nickname,
-        receiver: this.receiverNickname || this.currentUser.email,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-        attachment: url,
-      };
-      db.collection("messages")
-        .add(message)
-        .then(() => {
-          this.newMessage = "";
-        })
-        .catch((error) => {
-          console.error("Error sending message with attachment:", error);
-        });
+    scrollToBottomPage() {
+      this.$nextTick(() => {
+        window.scrollTo(0, document.documentElement.scrollHeight);
+      });
     },
-    toggleEmoji() {
+    openImageInput() {
+      if (this.$refs.imageInput) {
+        this.$refs.imageInput.click();
+      }
+    },
+    toggleChatForm() {
+      this.showChatForm = !this.showChatForm;
+      this.scrollToBottomChat();
+      this.scrollToBottomPage();
+    },
+    toggleEmoji(event) {
       event.preventDefault();
       this.showEmojiPicker = !this.showEmojiPicker;
+      this.scrollToBottomPage();
     },
     onSelectEmoji(emoji) {
       this.newMessage += emoji.i;
