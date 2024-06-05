@@ -115,7 +115,6 @@ export default {
   data() {
     return {
       cards: [],
-      dropdowns: [],
       isOpen: false,
       isModalOpened: isModalOpened,
       submitHandler: submitHandler,
@@ -127,25 +126,8 @@ export default {
     };
   },
   mounted() {
-    firebase
-      .firestore()
-      .collection("users")
-      .get()
-      .then((querySnapshot) => {
-        this.store.users = [];
-        querySnapshot.forEach((doc) => {
-          const userData = doc.data();
-          const user = {
-            nickname: userData.nickname,
-            profileImage: userData.profileImage,
-          };
-          this.store.users.push(user);
-        });
-      })
-      .catch((error) => {
-        console.error("Error getting user data:", error);
-      });
     this.toast = useToast();
+    this.getUsers();
     this.getPosts();
     this.getSubjects();
   },
@@ -166,11 +148,23 @@ export default {
     },
   },
   methods: {
-    openUserCard(user) {
-      this.$router.push({
-        name: "UserCardWithNickname",
-        params: { nickname: user.nickname },
-      });
+    getUsers() {
+      db.collection("users")
+        .get()
+        .then((querySnapshot) => {
+          this.store.users = [];
+          querySnapshot.forEach((doc) => {
+            const userData = doc.data();
+            const user = {
+              nickname: userData.nickname,
+              profileImage: userData.profileImage,
+            };
+            this.store.users.push(user);
+          });
+        })
+        .catch((error) => {
+          console.error("Error getting user data:", error);
+        });
     },
     openModal() {
       console.log("Opening modal");
