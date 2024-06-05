@@ -70,7 +70,6 @@
   </div>
 </template>
 
-
 <script>
 import { db, storage } from "@/firebase";
 import { ref, onMounted } from "vue";
@@ -135,30 +134,46 @@ export default {
       console.log(newPost.value);
       const { title, subject, comment, attachment } = newPost.value;
 
-      db.collection("posts")
-        .add({
-          user: store.currentUser,
-          postead_at: Date.now(),
-          title,
-          subject,
-          comment,
-          attachment,
-        })
-        .then((doc) => {
-          console.log("Document successfully written!", doc);
+      db.collection("users")
+        .where("email", "==", store.currentUser)
+        .get()
+        .then((querySnapshot) => {
+          let userDisplayName = store.currentUser;
+          querySnapshot.forEach((doc) => {
+            const userData = doc.data();
+            userDisplayName = userData.nickname;
+          });
 
-          newPost.value = {
-            title: "",
-            subject: "",
-            comment: "",
-            attachment: null,
-          };
+          db.collection("posts")
+            .add({
+              user: store.currentUser,
+              userDisplayName: userDisplayName,
+              postead_at: Date.now(),
+              title,
+              subject,
+              comment,
+              attachment,
+            })
+            .then((doc) => {
+              console.log("Document successfully written!", doc);
 
-          emit("modal-close");
-          props.getPosts();
+              newPost.value = {
+                title: "",
+                subject: "",
+                comment: "",
+                attachment: null,
+              };
+
+              emit("modal-close");
+
+              props.getPosts();
+            })
+            .catch((error) => {
+              console.error("Error writing document: ", error);
+            });
         })
         .catch((error) => {
-          console.error("Error writing document: ", error);
+          console.error("Error fetching user data: ", error);
         });
     };
 

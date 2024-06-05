@@ -3,7 +3,16 @@
     <div v-for="card in cards" :key="card" class="postCard">
       <div class="postCard-header">
         <div class="userCard-info">
-          <span class="userCard-name">{{ card.user }}</span>
+          <span class="userCard-name">{{ getDisplayName(card) }}</span>
+          <i
+            :class="{
+              far: !currentUserHasLiked(card),
+              fas: currentUserHasLiked(card),
+              'fa-star': true,
+            }"
+            style="cursor: pointer; margin-left: 5px"
+            @click="toggleFavorite(card)"
+          ></i>
         </div>
         <div class="postCard-date">
           <span>{{ formatDate(card.date) }}</span>
@@ -23,7 +32,6 @@
 
 <script>
 import moment from "moment";
-import { storage } from "@/firebase";
 import "../styles/postsCard.css";
 
 export default {
@@ -33,8 +41,23 @@ export default {
       type: Array,
       required: true,
     },
+    currentUserHasLiked: {
+      type: Function,
+      required: true,
+    },
+    toggleFavorite: {
+      type: Function,
+      required: true,
+    },
   },
   methods: {
+    getDisplayName(card) {
+      if (card.userDisplayName) {
+        return card.userDisplayName;
+      } else {
+        return card.user;
+      }
+    },
     formatDate(date) {
       return moment(date).fromNow();
     },

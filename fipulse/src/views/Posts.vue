@@ -59,7 +59,12 @@
         >
           {{ $t("postsAllPosts") }}
         </button>
-        <PostsCard :cards="filteredCards" :key="cards.id" />
+        <PostsCard
+          :cards="filteredCards"
+          :currentUserHasLiked="currentUserHasLiked"
+          :toggleFavorite="toggleFavorite"
+          :key="cards.id"
+        />
       </div>
       <div class="col-3" style="padding-left: 50px">
         <div class="col-content">
@@ -126,6 +131,7 @@ import { firebase } from "@/firebase";
 import { db } from "@/firebase";
 import { ref } from "vue";
 import ModalComponent from "@/components/ModalComponent.vue";
+import { useToast } from "vue-toastification";
 import "../styles/posts.css";
 
 const isModalOpened = ref(false);
@@ -171,6 +177,7 @@ export default {
       .catch((error) => {
         console.error("Error getting user data:", error);
       });
+    this.toast = useToast();
     this.getPosts();
     this.getSubjects();
   },
@@ -178,7 +185,7 @@ export default {
     filteredCards() {
       let searchTerm = this.store.searchTerm.toLowerCase();
       return this.cards.filter((card) =>
-        ["title", "subject", "comment", "user"].some((prop) => {
+        ["title", "subject", "comment", "user", "userDisplayName"].some((prop) => {
           const value = card[prop];
           return (
             typeof value === "string" &&
@@ -188,7 +195,6 @@ export default {
       );
     },
   },
-
   methods: {
     openUserCard(user) {
       this.$router.push({
@@ -242,7 +248,6 @@ export default {
       gradDropdowns.sort((a, b) => a.label.localeCompare(b.label));
       this.dropdowns = [...undergradDropdowns, ...gradDropdowns];
     },
-
     getPosts() {
       db.collection("posts")
         .orderBy("postead_at", "desc")
@@ -251,11 +256,12 @@ export default {
         .then((querySnapshot) => {
           this.cards = [];
           querySnapshot.forEach((doc) => {
-            console.log(`${doc.id} => ${doc.data()}`);
+            //console.log(`${doc.id} => ${doc.data()}`);
             this.cards.push({
               id: doc.id,
               time: doc.data().time,
               user: doc.data().user,
+              userDisplayName: doc.data().userDisplayName,
               date: doc.data().postead_at,
               title: doc.data().title,
               subject: doc.data().subject,
@@ -287,6 +293,68 @@ export default {
     },
     clearFilter() {
       this.store.searchTerm = "";
+    },
+    currentUserHasLiked(post) {
+      const currentUser = firebase.auth().currentUser;
+      if (!currentUser) return false;
+      const userEmail = currentUser.email;
+      return post.likedBy && post.likedBy.includes(userEmail);
+    },
+    toggleFavorite(post) {
+      const currentUser = firebase.auth().currentUser;
+
+      if (!currentUser) {
+        this.toast.error("User not authenticated.");
+        return;
+      }
+
+      const userEmail = currentUser.email;
+
+      if (post.user === userEmail) {
+        this.toast.error("You cannot like your own post.");
+        return;
+      }
+
+      const hasLiked = post.likedBy && post.likedBy.includes(userEmail);
+
+      if (hasLiked) {
+        this.toast.error("You have already liked this post.");
+        return;
+      }
+
+      post.likedBy = post.likedBy || [];
+      post.likedBy.push(userEmail);
+      post.favorite = true;
+
+      db.collection("posts")
+        .doc(post.id)
+        .update({
+          likedBy: post.likedBy,
+          favorite: true,
+        })
+        .then(() => {
+          db.collection("users")
+            .where("email", "==", userEmail)
+            .get()
+            .then((querySnapshot) => {
+              querySnapshot.forEach((doc) => {
+                const userData = doc.data();
+                let grade = userData.grade || 0;
+
+                grade += 1;
+
+                doc.ref.update({ grade: grade });
+              });
+            })
+            .catch((error) => {
+              this.toast.error("Error updating user grade.");
+            });
+
+          this.toast.success("Post successfully liked!");
+        })
+        .catch((error) => {
+          this.toast.error("Error liking the post.");
+        });
     },
   },
 };
