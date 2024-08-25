@@ -55,6 +55,7 @@
             </button>
           </div>
         </div>
+        <WalletConnect v-if="isVisible" />
       </div>
     </nav>
     <SplashScreen v-if="showSplash" @splashFinished="splashFinished" />
@@ -68,6 +69,7 @@ import i18n from "@/plugins/i18n";
 import router from "@/router";
 import SplashScreen from "./views/SplashScreen.vue";
 import { firebase } from "@/firebase";
+import WalletConnect from "@/components/WalletConnect.vue";
 
 firebase.auth().onAuthStateChanged((user) => {
   if (user) {
@@ -82,6 +84,7 @@ export default {
   name: "app",
   components: {
     SplashScreen,
+    WalletConnect,
   },
   data() {
     return {
